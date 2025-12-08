@@ -7,22 +7,22 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.util.Log
-
 
 class IntentHandler : BaseThemedActivity() {
     companion object {
         private const val TAG = "IntentHandler"
     }
 
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleDeepLink(intent)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {  
         super.onNewIntent(intent)
-        intent?.let { handleDeepLink(it) }
+        handleDeepLink(intent)
     }
 
     @SuppressLint("IntentReset")
@@ -42,7 +42,6 @@ class IntentHandler : BaseThemedActivity() {
                 }
             }
         }
-
         startActivity(newIntent)
         finish()
     }
@@ -59,15 +58,18 @@ class IntentHandler : BaseThemedActivity() {
 
     private fun isMinecraftActivityRunning(): Boolean {
         if (MinecraftActivityState.isRunning()) return true
+        
         return try {
-            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-            activityManager?.getAppTasks()?.forEach { task ->
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return false
+            val tasks = activityManager.getAppTasks()
+            tasks.any { task ->
                 val taskInfo = task.taskInfo
-                taskInfo.baseThemedActivity?.className?.equals(MinecraftActivity::class.java.name) == true ||
-                taskInfo.topActivity?.className?.equals(MinecraftActivity::class.java.name) == true
-            } ?: false
+               
+                (taskInfo.baseActivity?.className == MinecraftActivity::class.java.name) ||
+                (taskInfo.topActivity?.className == MinecraftActivity::class.java.name)
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "checking if MinecraftActivity is running", e)
+            Log.e(TAG, "Error checking if MinecraftActivity is running", e)
             false
         }
     }
