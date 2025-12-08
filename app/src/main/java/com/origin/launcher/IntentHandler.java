@@ -4,6 +4,7 @@ package com.origin.launcher;
 import android.content.Intent;
 import android.app.Activity;
 import android.os.Bundle;
+import com.origin.launcher.Launcher.MinecraftActivity;
 
 public class IntentHandler extends Activity
 {
@@ -17,7 +18,7 @@ public class IntentHandler extends Activity
     }
 	void patiencepls(Intent intention) {
 		if (isMcLoaded()) {
-			intention.setClassName(getApplicationContext(), "com.mojang.minecraftpe.Launcher");
+			intention.setClassName(getApplicationContext(), "com.origin.launcher.Launcher.MinecraftActivity");
 		} else {
 			intention.setClassName(getApplicationContext(), "com.origin.launcher.MainActivity");
 		}
