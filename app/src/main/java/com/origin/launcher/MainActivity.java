@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction; // Add this import
+import androidx.fragment.app.FragmentTransaction; 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -20,7 +20,7 @@ public class MainActivity extends BaseThemedActivity {
     private static final String KEY_DISCLAIMER_SHOWN = "disclaimer_shown";
     private static final String KEY_THEMES_DIALOG_SHOWN = "themes_dialog_shown";
     private SettingsFragment settingsFragment;
-    private int currentFragmentIndex = 0; // Move this to class level
+    private int currentFragmentIndex = 0;
     private LinearProgressIndicator globalProgress;
 
     @Override
@@ -29,12 +29,11 @@ public class MainActivity extends BaseThemedActivity {
         
         setContentView(R.layout.activity_main);
 
-        // Check if this is the first launch
+
         checkFirstLaunch();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         
-        // Apply theme to bottom navigation
         ThemeUtils.applyThemeToBottomNavigation(bottomNavigationView);
         
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -65,10 +64,8 @@ public class MainActivity extends BaseThemedActivity {
                 
                 navigateToFragmentWithAnimation(selectedFragment, isForward);
                 
-                // Update current fragment index
                 setCurrentFragmentIndex(newIndex);
                 
-                // Update Discord presence
                 DiscordRPCHelper.getInstance().updatePresence(presenceActivity, "Using the best MCPE Client");
                 
                 return true;
@@ -76,16 +73,14 @@ public class MainActivity extends BaseThemedActivity {
             return false;
         });
 
-        // Set default fragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new HomeFragment())
                 .commit();
-            setCurrentFragmentIndex(0); // Set initial index
+            setCurrentFragmentIndex(0);
         }
     }
     
-    // Remove the duplicate navigateToFragment method - keep only this one
     private int getCurrentFragmentIndex() {
         return currentFragmentIndex;
     }
@@ -125,10 +120,8 @@ public class MainActivity extends BaseThemedActivity {
         
         if (isFirstLaunch) {
             showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown);
-            // Mark as not first launch anymore
             prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
         } else if (!themesDialogShown) {
-            // Show themes dialog if it hasn't been shown yet (for existing users)
             showThemesDialog(prefs, disclaimerShown);
         } else if (!disclaimerShown) {
             showDisclaimerDialog(prefs);
@@ -142,11 +135,7 @@ public class MainActivity extends BaseThemedActivity {
                 .setIcon(R.drawable.ic_info)
                 .setPositiveButton("Proceed", (dialog, which) -> {
                     dialog.dismiss();
-                    // Show themes dialog after first launch dialog if not shown yet
-                    if (!themesDialogShown) {
-                        showThemesDialog(prefs, disclaimerShown);
-                    } else if (!disclaimerShown) {
-                        // If themes dialog was already shown but disclaimer wasn't, show disclaimer
+                    if (!disclaimerShown) {
                         showDisclaimerDialog(prefs);
                     }
                 })
@@ -161,9 +150,7 @@ public class MainActivity extends BaseThemedActivity {
                 .setIcon(R.drawable.ic_info)
                 .setPositiveButton("Proceed", (dialog, which) -> {
                     dialog.dismiss();
-                    // Mark themes dialog as shown
                     prefs.edit().putBoolean(KEY_THEMES_DIALOG_SHOWN, true).apply();
-                    // Show disclaimer dialog after themes dialog if not shown yet
                     if (!disclaimerShown) {
                         showDisclaimerDialog(prefs);
                     }
@@ -181,7 +168,6 @@ public class MainActivity extends BaseThemedActivity {
                 .setIcon(R.drawable.ic_warning)
                 .setPositiveButton("I Understand", (dialog, which) -> {
                     dialog.dismiss();
-                    // Mark disclaimer as shown
                     prefs.edit().putBoolean(KEY_DISCLAIMER_SHOWN, true).apply();
                 })
                 .setCancelable(false)
@@ -195,7 +181,6 @@ public class MainActivity extends BaseThemedActivity {
         Log.d(TAG, "MainActivity onActivityResult: requestCode=" + requestCode + 
               ", resultCode=" + resultCode + ", data=" + (data != null ? "present" : "null"));
         
-        // Forward the result to the settings fragment if it's a Discord login
         if (requestCode == DiscordLoginActivity.DISCORD_LOGIN_REQUEST_CODE && settingsFragment != null) {
             Log.d(TAG, "Forwarding Discord login result to SettingsFragment");
             settingsFragment.onActivityResult(requestCode, resultCode, data);
@@ -206,7 +191,6 @@ public class MainActivity extends BaseThemedActivity {
     protected void onResume() {
         super.onResume();
         
-        // Update presence when app comes to foreground
         DiscordRPCHelper.getInstance().updatePresence("Using Xelo Client", "Using the best MCPE Client");
     }
     
@@ -214,29 +198,23 @@ public class MainActivity extends BaseThemedActivity {
     protected void onApplyTheme() {
         super.onApplyTheme();
         
-        // Refresh bottom navigation theme with animation
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         if (bottomNavigationView != null) {
             try {
-                // Get current background color safely
-                int currentBackground = Color.parseColor("#141414"); // Default fallback
+                int currentBackground = Color.parseColor("#141414"); 
                 if (bottomNavigationView.getBackground() != null) {
                     try {
                         currentBackground = ((android.graphics.drawable.ColorDrawable) bottomNavigationView.getBackground()).getColor();
                     } catch (Exception e) {
-                        // Use default if we can't get current color
                     }
                 }
                 
                 int targetBackground = ThemeManager.getInstance().getColor("surface");
                 
-                // Animate background color transition
                 ThemeUtils.animateBackgroundColorTransition(bottomNavigationView, currentBackground, targetBackground, 300);
                 
-                // Apply other theme properties
                 ThemeUtils.applyThemeToBottomNavigation(bottomNavigationView);
             } catch (Exception e) {
-                // Fallback to immediate theme application
                 ThemeUtils.applyThemeToBottomNavigation(bottomNavigationView);
             }
         }
@@ -276,14 +254,12 @@ public class MainActivity extends BaseThemedActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Update presence when app goes to background  
         DiscordRPCHelper.getInstance().updatePresence("Xelo Client", "Using the best MCPE Client");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Clean up RPC helper
         DiscordRPCHelper.getInstance().cleanup();
     }
 }

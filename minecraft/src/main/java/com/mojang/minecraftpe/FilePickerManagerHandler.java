@@ -2,6 +2,7 @@ package com.mojang.minecraftpe;
 
 import android.content.Intent;
 
-interface FilePickerManagerHandler {
-    void startPickerActivity(Intent intent, int i);
+
+public interface FilePickerManagerHandler {
+    void startPickerActivity(Intent intent, int requestCode);
 }
