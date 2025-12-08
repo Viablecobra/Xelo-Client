@@ -60,7 +60,7 @@ repositories {
     }
 
 
-    ndkVersion "27.1.12297006"
+    ndkVersion "r27c"
 
     packagingOptions {
         pickFirst '**/libc++_shared.so'
