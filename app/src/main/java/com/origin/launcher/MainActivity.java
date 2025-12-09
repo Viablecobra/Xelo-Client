@@ -267,8 +267,11 @@ private void addCreditCard(LinearLayout container, String handle, String usernam
 
 animateCardEntrance(card);
 
+    card.setScaleX(0.9f);
+    card.setScaleY(0.9f);
+
     card.setOnClickListener(v -> {
-animateCardClick(v);  
+        focusCard(container, card);  
         new Handler().postDelayed(() -> {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + username));
         startActivity(browserIntent);
@@ -305,6 +308,19 @@ private void animateCardClick(View card) {
                 .start();
         })
         .start();
+}
+
+private void focusCard(LinearLayout container, View focused) {
+    for (int i = 0; i < container.getChildCount(); i++) {
+        View child = container.getChildAt(i);
+        float targetScale = (child == focused) ? 1.05f : 0.9f;
+
+        child.animate()
+                .scaleX(targetScale)
+                .scaleY(targetScale)
+                .setDuration(200)
+                .start();
+    }
 }
 
 private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
