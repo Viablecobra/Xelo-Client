@@ -15,10 +15,12 @@
         android:layout_marginBottom="24dp" />
 
     <HorizontalScrollView
+        android:id="@+id/credits_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:gravity="center">
+        android:fadingEdge="none"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:id="@+id/credits_container"
