@@ -159,11 +159,11 @@ private void showFirstLaunchDialog(SharedPreferences prefs,
 private void showDisclaimerDialog(SharedPreferences prefs) {
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
             .setTitle("Important Disclaimer")
-            .setMessage("This application is not affiliated with, endorsed by, or related to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. " +
-                       "Minecraft is a trademark of Mojang Studios. This is an independent third-party launcher. " +
-                       "
-
-By clicking 'I Understand', you acknowledge that you use this launcher at your own risk and that the developers are not responsible for any issues that may arise.")
+            .setMessage("This application is not affiliated with, endorsed by, or related to Mojang Studios, Microsoft Corporation, or any of their subsidiaries." 
++
+                       "Minecraft is a trademark of Mojang Studios. This is an independent third-party launcher." 
++
+                       "By clicking 'I Understand', you acknowledge that you use this launcher at your own risk and that the developers are not responsible for any issues that may arise.")
             .setIcon(R.drawable.ic_warning)
             .setPositiveButton("I Understand", (dialog, which) -> {
                 dialog.dismiss();
@@ -183,11 +183,9 @@ By clicking 'I Understand', you acknowledge that you use this launcher at your o
 
 private void showThanksDialog(SharedPreferences prefs) {
     SpannableString message = new SpannableString(
-            "Huge thanks to:
-
-" +
-            "❤️ VCX "
-    );
+            "Huge thanks to:" 
++
+            "❤️ VCX");
 
     String githubUrl = "https://github.com/Viablecobra";
     int start = message.length();
@@ -198,9 +196,7 @@ private void showThanksDialog(SharedPreferences prefs) {
     message.setSpan(new ForegroundColorSpan(Color.parseColor("#1DA1F2")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     message.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    message.append("
-
-Thanks for Your Support 🫶🏻!");
+    message.append("Thanks for Your Support 🫶🏻!");
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
             .setTitle("🫡 Special Thanks")
