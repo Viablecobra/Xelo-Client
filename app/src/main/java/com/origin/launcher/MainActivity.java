@@ -19,6 +19,7 @@ public class MainActivity extends BaseThemedActivity {
     private static final String KEY_FIRST_LAUNCH = "first_launch";
     private static final String KEY_DISCLAIMER_SHOWN = "disclaimer_shown";
     private static final String KEY_THEMES_DIALOG_SHOWN = "themes_dialog_shown";
+private static final String KEY_CREDITS_SHOWN = "credits_shown";
     private SettingsFragment settingsFragment;
     private int currentFragmentIndex = 0;
     private LinearProgressIndicator globalProgress;
@@ -112,67 +113,124 @@ public class MainActivity extends BaseThemedActivity {
         transaction.commit();
     }
 
-    private void checkFirstLaunch() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true);
-        boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, false);
-        boolean themesDialogShown = prefs.getBoolean(KEY_THEMES_DIALOG_SHOWN, false);
-        
-        if (isFirstLaunch) {
-            showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown);
-            prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
-        } else if (!themesDialogShown) {
-            showThemesDialog(prefs, disclaimerShown);
-        } else if (!disclaimerShown) {
-            showDisclaimerDialog(prefs);
-        }
-    }
+ 
 
-    private void showFirstLaunchDialog(SharedPreferences prefs, boolean disclaimerShown, boolean themesDialogShown) {
-        new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-                .setTitle("Welcome to Xelo Client")
-                .setMessage("Launch Minecraft once before doing anything, to make the config load properly")
-                .setIcon(R.drawable.ic_info)
-                .setPositiveButton("Proceed", (dialog, which) -> {
-                    dialog.dismiss();
-                    if (!disclaimerShown) {
-                        showDisclaimerDialog(prefs);
-                    }
-                })
-                .setCancelable(false)
-                .show();
-    }
-    
-    private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
-        new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-                .setTitle("THEMES!!🎉")
-                .setMessage("xelo client now supports custom themes! download themes from https://themes.xeloclient.in or make your own themes from https://docs.xeloclient.com")
-                .setIcon(R.drawable.ic_info)
-                .setPositiveButton("Proceed", (dialog, which) -> {
-                    dialog.dismiss();
-                    prefs.edit().putBoolean(KEY_THEMES_DIALOG_SHOWN, true).apply();
-                    if (!disclaimerShown) {
-                        showDisclaimerDialog(prefs);
-                    }
-                })
-                .setCancelable(false)
-                .show();
-    }
+private void checkFirstLaunch() {
+    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+    boolean isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true);
+    boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, false);
+    boolean themesDialogShown = prefs.getBoolean(KEY_THEMES_DIALOG_SHOWN, false);
+    boolean creditsShown = prefs.getBoolean(KEY_CREDITS_SHOWN, false);
 
-    private void showDisclaimerDialog(SharedPreferences prefs) {
-        new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-                .setTitle("Important Disclaimer")
-                .setMessage("This application is not affiliated with, endorsed by, or related to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. " +
-                           "Minecraft is a trademark of Mojang Studios. This is an independent third-party launcher. " +
-                           "\n\nBy clicking 'I Understand', you acknowledge that you use this launcher at your own risk and that the developers are not responsible for any issues that may arise.")
-                .setIcon(R.drawable.ic_warning)
-                .setPositiveButton("I Understand", (dialog, which) -> {
-                    dialog.dismiss();
-                    prefs.edit().putBoolean(KEY_DISCLAIMER_SHOWN, true).apply();
-                })
-                .setCancelable(false)
-                .show();
+    if (isFirstLaunch) {
+        showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown, creditsShown);
+        prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
+    } else if (!disclaimerShown) {
+        showDisclaimerDialog(prefs);
+    } else if (!creditsShown) {
+        showThanksDialog(prefs);
+    } else if (!themesDialogShown) {
+        showThemesDialog(prefs, disclaimerShown);
     }
+}
+
+private void showFirstLaunchDialog(SharedPreferences prefs,
+                                   boolean disclaimerShown,
+                                   boolean themesDialogShown,
+                                   boolean creditsShown) {
+    new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
+            .setTitle("Welcome to Xelo Client")
+            .setMessage("Launch Minecraft once before doing anything, to make the config load properly")
+            .setIcon(R.drawable.ic_info)
+            .setPositiveButton("Proceed", (dialog, which) -> {
+                dialog.dismiss();
+                if (!disclaimerShown) {
+                    showDisclaimerDialog(prefs);
+                } else if (!creditsShown) {
+                    showThanksDialog(prefs);
+                } else if (!themesDialogShown) {
+                    showThemesDialog(prefs, disclaimerShown);
+                }
+            })
+            .setCancelable(false)
+            .show();
+}
+
+private void showDisclaimerDialog(SharedPreferences prefs) {
+    new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
+            .setTitle("Important Disclaimer")
+            .setMessage("This application is not affiliated with, endorsed by, or related to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. " +
+                       "Minecraft is a trademark of Mojang Studios. This is an independent third-party launcher. " +
+                       "
+
+By clicking 'I Understand', you acknowledge that you use this launcher at your own risk and that the developers are not responsible for any issues that may arise.")
+            .setIcon(R.drawable.ic_warning)
+            .setPositiveButton("I Understand", (dialog, which) -> {
+                dialog.dismiss();
+                prefs.edit().putBoolean(KEY_DISCLAIMER_SHOWN, true).apply();
+               
+                boolean creditsShown = prefs.getBoolean(KEY_CREDITS_SHOWN, false);
+                boolean themesDialogShown = prefs.getBoolean(KEY_THEMES_DIALOG_SHOWN, false);
+                if (!creditsShown) {
+                    showThanksDialog(prefs);
+                } else if (!themesDialogShown) {
+                    showThemesDialog(prefs, true);
+                }
+            })
+            .setCancelable(false)
+            .show();
+}
+
+private void showThanksDialog(SharedPreferences prefs) {
+    SpannableString message = new SpannableString(
+            "Huge thanks to:
+
+" +
+            "❤️ VCX "
+    );
+
+    String githubUrl = "https://github.com/Viablecobra";
+    int start = message.length();
+    message.append(githubUrl);
+    int end = message.length();
+
+    message.setSpan(new URLSpan(githubUrl), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    message.setSpan(new ForegroundColorSpan(Color.parseColor("#1DA1F2")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    message.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    message.append("
+
+Thanks for Your Support 🫶🏻!");
+
+    new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
+            .setTitle("🫡 Special Thanks")
+            .setMessage(message)
+            .setIcon(R.drawable.ic_info)
+            .setPositiveButton("Continue", (dialog, which) -> {
+                dialog.dismiss();
+                prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
+                boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, true);
+                showThemesDialog(prefs, disclaimerShown);
+            })
+            .setCancelable(false)
+            .show();
+}
+
+private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
+    new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
+            .setTitle("THEMES!!🎉")
+            .setMessage("xelo client now supports custom themes! download themes from https://themes.xeloclient.in or make your own themes from https://docs.xeloclient.com")
+            .setIcon(R.drawable.ic_info)
+            .setPositiveButton("Proceed", (dialog, which) -> {
+                dialog.dismiss();
+                prefs.edit().putBoolean(KEY_THEMES_DIALOG_SHOWN, true).apply();
+                if (!disclaimerShown) {
+                    showDisclaimerDialog(prefs);
+                }
+            })
+            .setCancelable(false)
+            .show();
+}
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
