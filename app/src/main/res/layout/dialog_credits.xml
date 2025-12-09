@@ -14,23 +14,13 @@
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
-    <HorizontalScrollView
-        android:id="@+id/credits_scroll"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/credits_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:fadingEdge="none"
-        android:overScrollMode="never">
-
-        <LinearLayout
-            android:id="@+id/credits_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="15dp" />
-
-    </HorizontalScrollView>
+        android:clipToPadding="false"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -38,6 +28,7 @@
         android:text="Thanks for Your Support!"
         android:textSize="16sp"
         android:gravity="center"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>
