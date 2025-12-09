@@ -188,34 +188,31 @@ private void showDisclaimerDialog(SharedPreferences prefs) {
 }
 
 private void showThanksDialog(SharedPreferences prefs) {
-    SpannableString message = new SpannableString(
-            "Huge thanks to:" 
-+
-            "❤️ VCX");
-
+    StringBuilder sb = new StringBuilder();
+    sb.append("Huge thanks to:");
+    sb.append("❤️ VCX");
     String githubUrl = "https://github.com/Viablecobra";
-    int start = message.length();
-    message.append(githubUrl);
-    int end = message.length();
+    sb.append(githubUrl);
+    sb.append("Your support makes Xelo Client possible!");
 
+    SpannableString message = new SpannableString(sb.toString());
+    int start = sb.indexOf(githubUrl);
+    int end = start + githubUrl.length();
+    
     message.setSpan(new URLSpan(githubUrl), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     message.setSpan(new ForegroundColorSpan(Color.parseColor("#1DA1F2")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     message.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    message.append("Thanks for Your Support 🫶🏻!");
-
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-            .setTitle("🫡 Special Thanks")
-            .setMessage(message)
-            .setIcon(R.drawable.ic_info)
-            .setPositiveButton("Continue", (dialog, which) -> {
-                dialog.dismiss();
-                prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
-                boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, true);
-                showThemesDialog(prefs, disclaimerShown);
-            })
-            .setCancelable(false)
-            .show();
+        .setTitle("🫡 Special Thanks")
+        .setMessage(message)
+        .setIcon(R.drawable.ic_info)
+        .setPositiveButton("Continue", (dialog, which) -> {
+            dialog.dismiss();
+            showThemesDialog(prefs);
+        })
+        .setCancelable(false)
+        .show();
 }
 
 private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
