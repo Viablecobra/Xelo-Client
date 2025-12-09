@@ -202,8 +202,14 @@ private void showThanksDialog(SharedPreferences prefs) {
     
     addCreditCard(creditsContainer, "VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻");
     
-     
-    addCreditCard(creditsContainer, "light-", "light-client", "https://avatars.githubusercontent.com/u/XXXXXXXX?v=4", "Minecraft Client Dev");
+   
+    addCreditCard(creditsContainer, "Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭");
+    
+    
+    addCreditCard(creditsContainer, "Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Development, Reverse Engineering, Game Development");
+    
+    
+    addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed");
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
         .setView(customView)
