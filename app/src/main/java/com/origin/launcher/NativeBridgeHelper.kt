@@ -1,7 +1,7 @@
 package com.origin.launcher
 
 import com.origin.launcher.R
-import com.origin.launcher.Launcher.Application
+import com.origin.launcher.Launcher.LauncherApplication
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
@@ -15,7 +15,7 @@ import android.view.Gravity
 object NativeBridgeHelper {
     @JvmStatic
     fun getAppContext(): Context {
-        return Application.context
+        return LauncherApplication.context
     }
 
     @JvmStatic
@@ -69,26 +69,6 @@ object NativeBridgeHelper {
             }
         } catch (t: Throwable) {
             false
-        }
-    }
-
-    @JvmStatic
-    fun showInvalidLicenseOverlay() {
-        val ctx = getAppContext()
-        try {
-            val handler = Handler(Looper.getMainLooper())
-            handler.post {
-                Toast.makeText(
-                    ctx,
-                    ctx.getString(R.string.invalid_license_detected_toast),
-                    Toast.LENGTH_LONG
-                ).apply {
-                    setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
-                    show()
-                }
-            }
-        } catch (t: Throwable) {
-            t.printStackTrace()
         }
     }
 }
