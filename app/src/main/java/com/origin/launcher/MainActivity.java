@@ -218,9 +218,13 @@ addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubuserc
     
     addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect");
 
-new Handler().postDelayed(() -> {
-    animateCardsSequentially(creditsContainer, 0);
-}, 200);
+new Handler().post(() -> {
+        int mid = creditsContainer.getChildCount() / 2;
+        if (mid >= 0 && mid < creditsContainer.getChildCount()) {
+            View middle = creditsContainer.getChildAt(mid);
+            focusCard(creditsContainer, middle);
+        }
+    });
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
         .setView(customView)
@@ -248,36 +252,42 @@ private void animateCardsSequentially(LinearLayout container, int index) {
 private void addCreditCard(LinearLayout container, String handle, String username, String picUrl, String tagline) {
     LayoutInflater inflater = LayoutInflater.from(this);
     View card = inflater.inflate(R.layout.credit_card_item, container, false);
-    
+
     ImageView profilePic = card.findViewById(R.id.profile_pic);
     TextView profileName = card.findViewById(R.id.profile_name);
     TextView profileTagline = card.findViewById(R.id.profile_tagline);
-    
-    
+
     Glide.with(this).load(picUrl).circleCrop().into(profilePic);
-    
+
     profileName.setText(username);
     profileTagline.setText(tagline);
-    
+
     if (handle.equals("Yami")) {
         profileName.setTextColor(Color.parseColor("#FFD700"));
         profileTagline.setTextColor(Color.parseColor("#FFD700"));
         card.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFF8DC")));
     }
 
-animateCardEntrance(card);
+    if (handle.equals("VCX")) {
+        int neon = Color.parseColor("#00FFFF"); // neon blue/cyan
+        profileName.setTextColor(neon);
+        profileTagline.setTextColor(neon);
+    }
 
+    
+    animateCardEntrance(card);
+
+    
     card.setScaleX(0.9f);
     card.setScaleY(0.9f);
 
-    card.setOnClickListener(v -> {
-        focusCard(container, card);  
-        new Handler().postDelayed(() -> {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + username));
-        startActivity(browserIntent);
-}, 150);
-    });
     
+    card.setOnClickListener(v -> {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/" + username));
+        startActivity(browserIntent);
+    });
+
     container.addView(card);
 }
 
