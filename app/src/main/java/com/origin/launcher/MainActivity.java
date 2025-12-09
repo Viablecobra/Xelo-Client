@@ -12,6 +12,12 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.URLSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.graphics.Typeface;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
