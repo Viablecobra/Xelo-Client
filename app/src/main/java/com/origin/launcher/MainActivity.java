@@ -24,6 +24,9 @@ import android.text.style.URLSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.graphics.Typeface;
+import android.view.animation.OvershootInterpolator;
+import android.os.Handler;
+
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
@@ -213,6 +216,10 @@ addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubuserc
     
     addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed");
 
+new Handler().postDelayed(() -> {
+    animateCardsSequentially(creditsContainer, 0);
+}, 200);
+
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
         .setView(customView)
         .setPositiveButton("Continue", (dialog, which) -> {
@@ -223,6 +230,18 @@ addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubuserc
         .setCancelable(false)
         .show();
 }
+
+private void animateCardsSequentially(LinearLayout container, int index) {
+    if (index >= container.getChildCount()) return;
+    
+    View card = container.getChildAt(index);
+    animateCardEntrance(card);
+    
+    new Handler().postDelayed(() -> {
+        animateCardsSequentially(container, index + 1);
+    }, 100);  
+}
+
 
 private void addCreditCard(LinearLayout container, String handle, String username, String picUrl, String tagline) {
     LayoutInflater inflater = LayoutInflater.from(this);
@@ -238,13 +257,52 @@ private void addCreditCard(LinearLayout container, String handle, String usernam
     profileName.setText(username);
     profileTagline.setText(tagline);
     
-    
+    if (handle.equals("Yami")) {
+        profileName.setTextColor(Color.parseColor("#FFD700"));
+        profileTagline.setTextColor(Color.parseColor("#FFD700"));
+        card.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFF8DC")));
+    }
+
+animateCardEntrance(card);
+
     card.setOnClickListener(v -> {
+animateCardClick(v);  
+        new Handler().postDelayed(() -> {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + username));
         startActivity(browserIntent);
+}, 150);
     });
     
     container.addView(card);
+}
+
+private void animateCardEntrance(View card) {
+    card.setAlpha(0f);
+    card.setScaleX(0.8f);
+    card.setScaleY(0.8f);
+    
+    card.animate()
+        .alpha(1f)
+        .scaleX(1f)
+        .scaleY(1f)
+        .setDuration(600)
+        .setInterpolator(new OvershootInterpolator())
+        .start();
+}
+
+private void animateCardClick(View card) {
+    card.animate()
+        .scaleX(0.95f)
+        .scaleY(0.95f)
+        .setDuration(100)
+        .withEndAction(() -> {
+            card.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(150)
+                .start();
+        })
+        .start();
 }
 
 private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
