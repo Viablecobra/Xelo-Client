@@ -26,14 +26,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="15dp" />
 
     </HorizontalScrollView>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your support makes Xelo Client possible!"
+        android:text="Thanks for Your Support!"
         android:textSize="16sp"
         android:gravity="center"
         android:textStyle="italic" />
