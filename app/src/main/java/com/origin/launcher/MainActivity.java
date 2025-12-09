@@ -199,6 +199,8 @@ private void showThanksDialog(SharedPreferences prefs) {
     
     LinearLayout creditsContainer = customView.findViewById(R.id.credits_container);
     
+
+addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubusercontent.com/u/99645769?v=4", "OWNER");
     
     addCreditCard(creditsContainer, "VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻");
     
