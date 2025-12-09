@@ -188,25 +188,19 @@ private void showDisclaimerDialog(SharedPreferences prefs) {
 }
 
 private void showThanksDialog(SharedPreferences prefs) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Huge thanks to:");
-    sb.append("❤️ VCX");
-    String githubUrl = "https://github.com/Viablecobra";
-    sb.append(githubUrl);
-    sb.append("Your support makes Xelo Client possible!");
-
-    SpannableString message = new SpannableString(sb.toString());
-    int start = sb.indexOf(githubUrl);
-    int end = start + githubUrl.length();
+    LayoutInflater inflater = LayoutInflater.from(this);
+    View customView = inflater.inflate(R.layout.dialog_credits, null);
     
-    message.setSpan(new URLSpan(githubUrl), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    message.setSpan(new ForegroundColorSpan(Color.parseColor("#1DA1F2")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    message.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    LinearLayout creditsContainer = customView.findViewById(R.id.credits_container);
+    
+    
+    addCreditCard(creditsContainer, "VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻");
+    
+     
+    addCreditCard(creditsContainer, "light-", "light-client", "https://avatars.githubusercontent.com/u/XXXXXXXX?v=4", "Minecraft Client Dev");
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-        .setTitle("🫡 Special Thanks")
-        .setMessage(message)
-        .setIcon(R.drawable.ic_info)
+        .setView(customView)
         .setPositiveButton("Continue", (dialog, which) -> {
             dialog.dismiss();
             prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
@@ -214,6 +208,29 @@ private void showThanksDialog(SharedPreferences prefs) {
         })
         .setCancelable(false)
         .show();
+}
+
+private void addCreditCard(LinearLayout container, String handle, String username, String picUrl, String tagline) {
+    LayoutInflater inflater = LayoutInflater.from(this);
+    View card = inflater.inflate(R.layout.credit_card_item, container, false);
+    
+    ImageView profilePic = card.findViewById(R.id.profile_pic);
+    TextView profileName = card.findViewById(R.id.profile_name);
+    TextView profileTagline = card.findViewById(R.id.profile_tagline);
+    
+    
+    Glide.with(this).load(picUrl).circleCrop().into(profilePic);
+    
+    profileName.setText(username);
+    profileTagline.setText(tagline);
+    
+    
+    card.setOnClickListener(v -> {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + username));
+        startActivity(browserIntent);
+    });
+    
+    container.addView(card);
 }
 
 private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
