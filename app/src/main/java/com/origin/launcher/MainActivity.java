@@ -28,6 +28,7 @@ import android.view.animation.OvershootInterpolator;
 import android.os.Handler;
 import androidx.core.content.res.ResourcesCompat;
 import android.content.res.ColorStateList;
+import com.origin.launcher.Adapter.CreditsAdapter;
 
 
 public class MainActivity extends BaseThemedActivity {
