@@ -15,7 +15,7 @@ import android.view.Gravity
 object NativeBridgeHelper {
     @JvmStatic
     fun getAppContext(): Context {
-        return LauncherApplication.context
+        return Application.context
     }
 
     @JvmStatic
