@@ -17,13 +17,15 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:gravity="center">
 
         <LinearLayout
             android:id="@+id/credits_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:gravity="center"
             android:layout_marginBottom="24dp" />
 
     </HorizontalScrollView>
