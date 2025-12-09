@@ -201,40 +201,54 @@ private void showDisclaimerDialog(SharedPreferences prefs) {
 private void showThanksDialog(SharedPreferences prefs) {
     LayoutInflater inflater = LayoutInflater.from(this);
     View customView = inflater.inflate(R.layout.dialog_credits, null);
-    
-    LinearLayout creditsContainer = customView.findViewById(R.id.credits_container);
-    
 
-addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubusercontent.com/u/99645769?v=4", "OWNER");
-    
-    addCreditCard(creditsContainer, "VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻");
-    
-   
-    addCreditCard(creditsContainer, "Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭");
-    
-    
-    addCreditCard(creditsContainer, "Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Dev...");
-    
-    
-    addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect");
+    RecyclerView recycler = customView.findViewById(R.id.credits_recycler);
 
-new Handler().post(() -> {
-        int mid = creditsContainer.getChildCount() / 2;
-        if (mid >= 0 && mid < creditsContainer.getChildCount()) {
-            View middle = creditsContainer.getChildAt(mid);
-            focusCard(creditsContainer, middle);
+    List<CreditsAdapter.CreditCard> cards = new ArrayList<>();
+    cards.add(new CreditsAdapter.CreditCard("Yami", "Sukrisus", "https://avatars.githubusercontent.com/u/99645769?v=4", "OWNER"));
+    cards.add(new CreditsAdapter.CreditCard("VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻"));
+    cards.add(new CreditsAdapter.CreditCard("Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭"));
+    cards.add(new CreditsAdapter.CreditCard("Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Development..."));
+    cards.add(new CreditsAdapter.CreditCard("GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect"));
+
+    CreditsAdapter adapter = new CreditsAdapter(this, cards);
+    recycler.setAdapter(adapter);
+
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+    recycler.setLayoutManager(layoutManager);
+
+    
+    PagerSnapHelper snapHelper = new PagerSnapHelper();
+    snapHelper.attachToRecyclerView(recycler);
+
+    
+    recycler.scrollToPosition(2);
+
+    
+    recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+            for (int i = 0; i < rv.getChildCount(); i++) {
+                View child = rv.getChildAt(i);
+                int center = rv.getWidth() / 2;
+                int childCenter = (child.getLeft() + child.getRight()) / 2;
+                float distance = Math.abs(center - childCenter);
+                float scale = Math.max(0.85f, 1f - (distance / rv.getWidth()) * 0.3f);
+                child.setScaleX(scale);
+                child.setScaleY(scale);
+            }
         }
     });
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-        .setView(customView)
-        .setPositiveButton("Continue", (dialog, which) -> {
-            dialog.dismiss();
-            prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
-            showThemesDialog(prefs, true);
-        })
-        .setCancelable(false)
-        .show();
+            .setView(customView)
+            .setPositiveButton("Continue", (dialog, which) -> {
+                dialog.dismiss();
+                prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
+                showThemesDialog(prefs, true);
+            })
+            .setCancelable(false)
+            .show();
 }
 
 private void animateCardsSequentially(LinearLayout container, int index) {
