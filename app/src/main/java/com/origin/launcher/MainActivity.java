@@ -26,6 +26,8 @@ import android.text.style.StyleSpan;
 import android.graphics.Typeface;
 import android.view.animation.OvershootInterpolator;
 import android.os.Handler;
+import androidx.core.content.res.ResourcesCompat;
+import android.content.res.ColorStateList;
 
 
 public class MainActivity extends BaseThemedActivity {
