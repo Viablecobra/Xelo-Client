@@ -29,7 +29,14 @@ import android.os.Handler;
 import androidx.core.content.res.ResourcesCompat;
 import android.content.res.ColorStateList;
 import com.origin.launcher.Adapter.CreditsAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
