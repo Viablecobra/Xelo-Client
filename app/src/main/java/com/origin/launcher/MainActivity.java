@@ -209,6 +209,7 @@ private void showThanksDialog(SharedPreferences prefs) {
         .setIcon(R.drawable.ic_info)
         .setPositiveButton("Continue", (dialog, which) -> {
             dialog.dismiss();
+            prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
             showThemesDialog(prefs, true);
         })
         .setCancelable(false)
@@ -223,9 +224,7 @@ private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) 
             .setPositiveButton("Proceed", (dialog, which) -> {
                 dialog.dismiss();
                 prefs.edit().putBoolean(KEY_THEMES_DIALOG_SHOWN, true).apply();
-                if (!disclaimerShown) {
-                    showDisclaimerDialog(prefs);
-                }
+                
             })
             .setCancelable(false)
             .show();
