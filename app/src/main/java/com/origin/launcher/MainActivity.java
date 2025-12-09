@@ -213,10 +213,10 @@ addCreditCard(creditsContainer, "Yami", "Sukrisus", "https://avatars.githubuserc
     addCreditCard(creditsContainer, "Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭");
     
     
-    addCreditCard(creditsContainer, "Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Development, Reverse Engineering, Game Development");
+    addCreditCard(creditsContainer, "Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Dev...");
     
     
-    addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed");
+    addCreditCard(creditsContainer, "GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect");
 
 new Handler().postDelayed(() -> {
     animateCardsSequentially(creditsContainer, 0);
