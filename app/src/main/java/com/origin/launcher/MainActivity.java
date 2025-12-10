@@ -5,6 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.LayoutInflater;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.net.Uri;
+import com.bumptech.glide.Glide;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction; 
@@ -18,6 +24,19 @@ import android.text.style.URLSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.graphics.Typeface;
+import android.view.animation.OvershootInterpolator;
+import android.os.Handler;
+import androidx.core.content.res.ResourcesCompat;
+import android.content.res.ColorStateList;
+import com.origin.launcher.Adapter.CreditsAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
@@ -188,32 +207,152 @@ private void showDisclaimerDialog(SharedPreferences prefs) {
 }
 
 private void showThanksDialog(SharedPreferences prefs) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Huge thanks to:");
-    sb.append("❤️ VCX");
-    String githubUrl = "https://github.com/Viablecobra";
-    sb.append(githubUrl);
-    sb.append("Your support makes Xelo Client possible!");
+    LayoutInflater inflater = LayoutInflater.from(this);
+    View customView = inflater.inflate(R.layout.dialog_credits, null);
 
-    SpannableString message = new SpannableString(sb.toString());
-    int start = sb.indexOf(githubUrl);
-    int end = start + githubUrl.length();
+    RecyclerView recycler = customView.findViewById(R.id.credits_recycler);
+
+    List<CreditsAdapter.CreditCard> cards = new ArrayList<>();
+    cards.add(new CreditsAdapter.CreditCard("Yami", "Sukrisus", "https://avatars.githubusercontent.com/u/99645769?v=4", "OWNER"));
+    cards.add(new CreditsAdapter.CreditCard("VCX", "Viablecobra", "https://avatars.githubusercontent.com/u/88580298?v=4", "I am viable👍🏻"));
+    cards.add(new CreditsAdapter.CreditCard("Light", "RadiantByte", "https://avatars.githubusercontent.com/u/198057285?v=4", "💭"));
+    cards.add(new CreditsAdapter.CreditCard("Kitsuri", "Kitsuri-Studios", "https://avatars.githubusercontent.com/u/220755073?v=4", "One Place For All Case: Native Development..."));
+    cards.add(new CreditsAdapter.CreditCard("GX", "dreamguxiang", "https://avatars.githubusercontent.com/u/62042544?v=4", "No Tag line Needed, Already Perfect"));
+
+    CreditsAdapter adapter = new CreditsAdapter(this, cards);
+    recycler.setAdapter(adapter);
+
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+    recycler.setLayoutManager(layoutManager);
+
     
-    message.setSpan(new URLSpan(githubUrl), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    message.setSpan(new ForegroundColorSpan(Color.parseColor("#1DA1F2")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    message.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    PagerSnapHelper snapHelper = new PagerSnapHelper();
+    snapHelper.attachToRecyclerView(recycler);
+
+    
+    recycler.scrollToPosition(0);
+
+    
+    recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+            for (int i = 0; i < rv.getChildCount(); i++) {
+                View child = rv.getChildAt(i);
+                int center = rv.getWidth() / 2;
+                int childCenter = (child.getLeft() + child.getRight()) / 2;
+                float distance = Math.abs(center - childCenter);
+                float scale = Math.max(0.85f, 1f - (distance / rv.getWidth()) * 0.3f);
+                child.setScaleX(scale);
+                child.setScaleY(scale);
+            }
+        }
+    });
 
     new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog)
-        .setTitle("🫡 Special Thanks")
-        .setMessage(message)
-        .setIcon(R.drawable.ic_info)
-        .setPositiveButton("Continue", (dialog, which) -> {
-            dialog.dismiss();
-            prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
-            showThemesDialog(prefs, true);
+            .setView(customView)
+            .setPositiveButton("Continue", (dialog, which) -> {
+                dialog.dismiss();
+                prefs.edit().putBoolean(KEY_CREDITS_SHOWN, true).apply();
+                showThemesDialog(prefs, true);
+            })
+            .setCancelable(false)
+            .show();
+}
+
+private void animateCardsSequentially(LinearLayout container, int index) {
+    if (index >= container.getChildCount()) return;
+    
+    View card = container.getChildAt(index);
+    animateCardEntrance(card);
+    
+    new Handler().postDelayed(() -> {
+        animateCardsSequentially(container, index + 1);
+    }, 100);  
+}
+
+
+private void addCreditCard(LinearLayout container, String handle, String username, String picUrl, String tagline) {
+    LayoutInflater inflater = LayoutInflater.from(this);
+    View card = inflater.inflate(R.layout.credit_card_item, container, false);
+
+    ImageView profilePic = card.findViewById(R.id.profile_pic);
+    TextView profileName = card.findViewById(R.id.profile_name);
+    TextView profileTagline = card.findViewById(R.id.profile_tagline);
+
+    Glide.with(this).load(picUrl).circleCrop().into(profilePic);
+
+    profileName.setText(username);
+    profileTagline.setText(tagline);
+
+    if (handle.equals("Yami")) {
+        profileName.setTextColor(Color.parseColor("#FFD700"));
+        profileTagline.setTextColor(Color.parseColor("#FFD700"));
+        card.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFF8DC")));
+    }
+
+    if (handle.equals("VCX")) {
+        int neon = Color.parseColor("#00FFFF"); // neon blue/cyan
+        profileName.setTextColor(neon);
+        profileTagline.setTextColor(neon);
+    }
+
+    
+    animateCardEntrance(card);
+
+    
+    card.setScaleX(0.9f);
+    card.setScaleY(0.9f);
+
+    
+    card.setOnClickListener(v -> {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/" + username));
+        startActivity(browserIntent);
+    });
+
+    container.addView(card);
+}
+
+private void animateCardEntrance(View card) {
+    card.setAlpha(0f);
+    card.setScaleX(0.8f);
+    card.setScaleY(0.8f);
+    
+    card.animate()
+        .alpha(1f)
+        .scaleX(1f)
+        .scaleY(1f)
+        .setDuration(600)
+        .setInterpolator(new OvershootInterpolator())
+        .start();
+}
+
+private void animateCardClick(View card) {
+    card.animate()
+        .scaleX(0.95f)
+        .scaleY(0.95f)
+        .setDuration(100)
+        .withEndAction(() -> {
+            card.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(150)
+                .start();
         })
-        .setCancelable(false)
-        .show();
+        .start();
+}
+
+private void focusCard(LinearLayout container, View focused) {
+    for (int i = 0; i < container.getChildCount(); i++) {
+        View child = container.getChildAt(i);
+        float targetScale = (child == focused) ? 1.05f : 0.9f;
+
+        child.animate()
+                .scaleX(targetScale)
+                .scaleY(targetScale)
+                .setDuration(200)
+                .start();
+    }
 }
 
 private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) {
