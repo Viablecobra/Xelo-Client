@@ -20,7 +20,8 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:paddingStart="60dp"
-        android:paddingEnd="60dp" />
+        android:paddingEnd="60dp"
+android:overScrollMode="always" />
 
     <TextView
         android:layout_width="match_parent"
