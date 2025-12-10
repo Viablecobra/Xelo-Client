@@ -11,11 +11,8 @@ import com.microsoft.applications.events.HttpClient;
  */
 
 public class XalInitTelemetry extends AppCompatActivity {
-    static void initOneDS() {
+    static void initOneDS(Context context) throws PackageManager.NameNotFoundException {
         System.loadLibrary("maesdk");
-    }
-
-    static void startHttpClient(Context context) throws PackageManager.NameNotFoundException {
         new HttpClient(context);
     }
 }
