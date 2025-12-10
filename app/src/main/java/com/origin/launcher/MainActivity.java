@@ -230,7 +230,7 @@ private void showThanksDialog(SharedPreferences prefs) {
     snapHelper.attachToRecyclerView(recycler);
 
     
-    recycler.scrollToPosition(2);
+    recycler.scrollToPosition(0);
 
     
     recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
