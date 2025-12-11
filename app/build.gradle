@@ -33,6 +33,16 @@ repositories {
     }
 }
     }
+    
+    buildFeatures {
+        viewBinding true
+    }
+    buildFeatures {
+        prefab true
+    }
+    buildFeatures {
+        buildConfig true
+    }
 
 
     buildTypes {
@@ -82,6 +92,7 @@ repositories {
 
 dependencies {
     implementation project(':minecraft')
+    implementation project(':minecraft-msftauth')
     implementation libs.androidx.preference.ktx
     implementation libs.androidx.games.activity
     implementation libs.appcompat
