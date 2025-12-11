@@ -18,7 +18,7 @@
             android:textColor="@color/onSurface"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:fontFamily="@font/Mojangles"
+            android:fontFamily="@font/mojangles"
             android:paddingBottom="8dp" />
 
         <ScrollView
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/onSurface"
                 android:textSize="12sp"
-                android:fontFamily="@font/Mojangles"
+                android:fontFamily="@font/mojangles"
                 android:alpha="0.9"
                 android:lineSpacingExtra="4dp" />
         </ScrollView>
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/crash_back_to_main"
             android:textAllCaps="false"
-            android:fontFamily="@font/Mojangles"
+            android:fontFamily="@font/mojangles"
             android:textColor="@color/onSurface"
             android:padding="12dp"
             android:layout_marginTop="12dp" />
