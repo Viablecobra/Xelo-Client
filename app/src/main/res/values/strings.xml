@@ -7,4 +7,15 @@
 	<string name="welcome">Xelo Client - Minecraft Bedrock Client</string>
 	<string name="mc_pkgname">minecraft package id:</string>
 <string name="thank_you_support">Thank you for your support</string>
+
+<!--crash activity-->
+
+<string name="crash_title">Application crashed</string>
+    <string name="crash_back_to_main">Back to Home</string>
+    <string name="crash_log_file_label">Log file:</string>
+    <string name="crash_log_file_missing">Log file not found or unreadable.</string>
+    <string name="crash_read_failed">Failed to read log: %1$s</string>
+    <string name="crash_emergency_label">Emergency:</string>
+    <string name="crash_no_details">No crash details available.</string>
+
 </resources>
