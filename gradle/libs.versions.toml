@@ -93,11 +93,11 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 junit = { module = "junit:junit", version.ref = "junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+guava = { module = "com.google.guava:guava", version = "33.3.1-android" }
+bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version = "1.70" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-guava = { module = "com.google.guava:guava", version = "33.3.1-android" }
-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version = "1.70" }
