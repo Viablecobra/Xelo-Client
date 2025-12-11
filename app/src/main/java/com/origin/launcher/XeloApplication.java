@@ -35,7 +35,7 @@ public class XeloApplication extends Application {
             // Use old external storage directory
             File crashDir = new File(
                     Environment.getExternalStorageDirectory(),
-                    "games/com.origin.launcher/crash_logs"
+                    "games/xelo_client/crash_logs"
             );
 
             if (!crashDir.exists()) {

@@ -68,7 +68,6 @@ firebase-messaging = { module = "com.google.firebase:firebase-messaging", versio
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-okhttp = { module = "com.squareup.okhttp3:okhttp" }
 okhttp-v510 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion" }
 okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 pkix = { module = "com.madgag.spongycastle:pkix", version.ref = "pkix" }
@@ -93,6 +92,9 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 junit = { module = "junit:junit", version.ref = "junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+guava = { module = "com.google.guava:guava", version = "33.3.1-android" }
+bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version = "1.70" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
