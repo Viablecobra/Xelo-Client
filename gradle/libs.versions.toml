@@ -99,3 +99,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+guava = { module = "com.google.guava:guava", version = "33.3.1-android" }
+bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version = "1.70" }
