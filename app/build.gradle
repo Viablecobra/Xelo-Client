@@ -8,9 +8,6 @@ android {
     compileSdk 36
     buildToolsVersion "36.0.0"
 
-useAndroidX = true
-    nonTransitiveRClass = true
-
 repositories {
         google()
         mavenCentral()
