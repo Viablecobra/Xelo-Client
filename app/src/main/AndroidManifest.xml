@@ -135,7 +135,7 @@
             android:name="org.levimc.launcher.ui.activities.CrashActivity"
             android:exported="false"
             android:screenOrientation="sensorLandscape"
-            android:theme="@style/Base.Theme.FullScreen"
+            android:theme="@style/Theme.Material3.Dark.NoActionBar.Custom"
             android:configChanges="fontScale|density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|navigation|keyboardHidden|keyboard|touchscreen|locale|mnc|mcc" />
 
 
