@@ -9,13 +9,8 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
         consumerProguardFiles("consumer-rules.pro")
-    }
-
-lint {
-        checkReleaseBuilds = false
-        abortOnError = false
     }
 
     buildTypes {
@@ -27,10 +22,9 @@ lint {
             )
         }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     packaging {
@@ -53,14 +47,6 @@ lint {
     }
 }
 
-// ✅ Modern Kotlin compiler options
-kotlin {
-    compilerOptions {
-        // Use the new compilerOptions DSL
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
-}
-
 dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -69,7 +55,6 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.annotations)
     implementation(libs.androidx.annotation)
-    implementation(libs.okhttp.v510)
     implementation(libs.okhttp)
     implementation(libs.httpclient)
     implementation(libs.androidx.annotation)
@@ -89,6 +74,7 @@ dependencies {
     implementation(libs.prov)
     implementation(libs.pkix)
 
+    // Architectural Components
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
