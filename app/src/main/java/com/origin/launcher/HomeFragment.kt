@@ -127,16 +127,14 @@ private fun launchGameWithMinecraftLauncher() {
     val version = versionManager.getSelectedVersion()
     if (version == null) {
         mbl2_button.isEnabled = true
-        listener.append("
-No version selected")
+        listener.append("No version selected")
         Toast.makeText(requireContext(), "No version selected", Toast.LENGTH_SHORT).show()
         return
     }
 
     loadingDialog?.dismiss()
     loadingDialog = LoadingDialog(requireContext()).also { it.show() }
-    listener.append("
-Launching with version: ${version.displayName}")
+    listener.append("Launching with version: ${version.displayName}")
 
     Thread {
         try {
@@ -146,8 +144,7 @@ Launching with version: ${version.displayName}")
                 loadingDialog?.dismiss()
                 loadingDialog = null
                 mbl2_button.isEnabled = true
-                listener.append("
-Minecraft launch requested")
+                listener.append("Minecraft launch requested")
             }
         } catch (e: Exception) {
             requireActivity().runOnUiThread {
@@ -156,9 +153,8 @@ Minecraft launch requested")
                 mbl2_button.isEnabled = true
 
                 val msg = "Launch failed: ${e.message ?: "Unknown error"}"
-                listener.append("
-$msg")
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                listener.append("$msg")
+                Toast.makeText(requireContext(),msg, Toast.LENGTH_LONG).show()
             }
         }
     }.start()
