@@ -103,10 +103,10 @@ class MinecraftLauncher(private val context: Context) {
                 sourceIntent.setClass(context, MinecraftActivity::class.java)
 
                 val mcInfo = if (version.isInstalled) {
-                    gameManager?.packageContext?.applicationInfo
-                } else {
-                    createFakeApplicationInfo(version, MC_PACKAGE_NAME)
-                }
+    gameManager?.getPackageContext()?.applicationInfo
+} else {
+    createFakeApplicationInfo(version, MC_PACKAGE_NAME)
+}
 
                 mcInfo?.let {
                     sourceIntent.putExtra("MC_SRC", it.sourceDir)
