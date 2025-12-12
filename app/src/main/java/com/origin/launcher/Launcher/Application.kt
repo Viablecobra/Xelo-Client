@@ -48,7 +48,11 @@ class LauncherApplication : Application() {
     setAnrRethrow(false)
 }) 
       
-        
+                try {
+            System.loadLibrary("xelo_init")
+          } catch (e: Exception) {
+            e.printStackTrace()
+        }
         DynamicColors.applyToActivitiesIfAvailable(this)
     }
 
