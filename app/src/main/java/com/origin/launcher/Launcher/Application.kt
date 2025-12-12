@@ -47,6 +47,15 @@ class LauncherApplication : Application() {
     setNativeRethrow(false)
     setAnrRethrow(false)
 }) 
+
+try {
+            System.loadLibrary("xelo_init")
+        } catch (e: UnsatisfiedLinkError) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
     }
 
     companion object {
