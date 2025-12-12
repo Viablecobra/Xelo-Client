@@ -53,11 +53,5 @@ public class XeloApplication extends Application {
 
         Log.d(TAG, "ThemeManager initialized");
 
-try {
-            System.loadLibrary("xelo_init");
-        } catch (UnsatisfiedLinkError | Exception e) {
-            e.printStackTrace();
-        }
-
     }
 }
