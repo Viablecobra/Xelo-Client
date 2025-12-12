@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import com.origin.launcher.LoadingDialog
 import com.origin.launcher.versions.GameVersion
+import com.origin.launcher.Launcher.GamePackageManager
 import java.io.File
 
 class MinecraftLauncher(private val context: Context) {
