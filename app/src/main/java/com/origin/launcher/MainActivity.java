@@ -229,7 +229,7 @@ private void showThanksDialog(SharedPreferences prefs) {
     PagerSnapHelper snapHelper = new PagerSnapHelper();
     snapHelper.attachToRecyclerView(recycler);
 
-    
+    recycler.post(() ->
     recycler.scrollToPosition(0);
 
     
