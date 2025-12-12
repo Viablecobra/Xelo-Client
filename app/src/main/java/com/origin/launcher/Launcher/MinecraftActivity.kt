@@ -1,93 +1,93 @@
 package com.origin.launcher.Launcher
 
+import android.content.Intent
 import android.content.res.AssetManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.mojang.minecraftpe.MainActivity
-import org.conscrypt.Conscrypt
-import java.security.Security
+import com.origin.launcher.versions.GameVersion
+import java.io.File
 
-/**
- * Self-preloading Minecraft activity (ANR-safe)
- */
 class MinecraftActivity : MainActivity() {
 
     private lateinit var gameManager: GamePackageManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Keep work before super.onCreate() minimal
         try {
-            Log.d(TAG, "Initializing game manager (light)...")
-            gameManager = GamePackageManager.getInstance(applicationContext)
+            val versionDir = intent.getStringExtra("MC_PATH")
+            val versionCode = intent.getStringExtra("MINECRAFT_VERSION") ?: ""
+            val versionDirName = intent.getStringExtra("MINECRAFT_VERSION_DIR") ?: ""
+            val isInstalled = intent.getBooleanExtra("IS_INSTALLED", false)
+
+            val version = if (!versionDir.isNullOrEmpty()) {
+                GameVersion(
+                    versionDirName,
+                    versionCode,
+                    versionCode,
+                    File(versionDir),
+                    isInstalled,
+                    MinecraftLauncher.MC_PACKAGE_NAME,
+                    ""
+                )
+            } else if (!versionCode.isNullOrEmpty()) {
+                GameVersion(
+                    versionDirName,
+                    versionCode,
+                    versionCode,
+                    File(versionDir ?: ""),
+                    true,
+                    MinecraftLauncher.MC_PACKAGE_NAME,
+                    ""
+                )
+            } else {
+                null
+            }
+
+            gameManager = GamePackageManager.getInstance(applicationContext, version)
+
+            try {
+                System.loadLibrary("preloader")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to load preloader: ${e.message}")
+            }
+
+            if (!gameManager.loadLibrary("minecraftpe")) {
+                throw RuntimeException("Failed to load libminecraftpe.so")
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to init GamePackageManager", e)
-            Toast.makeText(
-                this,
-                "Failed to init game: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Failed to load game: ${e.message}", Toast.LENGTH_LONG).show()
             finish()
             return
         }
-
-        // Let MainActivity create its window ASAP
         super.onCreate(savedInstanceState)
+        MinecraftActivityState.onCreated(this)
+    }
 
-        // Do all heavy stuff off the UI thread
-        Thread {
-            try {
-                Log.d(TAG, "Setting up security provider...")
-                try {
-                    Security.insertProviderAt(Conscrypt.newProvider(), 1)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Conscrypt init failed: ${e.message}")
-                }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+    }
 
-                Log.d(TAG, "Loading native libraries...")
+    override fun onResume() {
+        super.onResume()
+        MinecraftActivityState.onResumed()
+    }
 
-                try {
-                    System.loadLibrary("preloader")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed to load preloader: ${e.message}")
-                }
+    override fun onPause() {
+        MinecraftActivityState.onPaused()
+        super.onPause()
+    }
 
-                // Load all additional libs (can be slow)
-                gameManager.loadAllLibraries()
+    override fun onDestroy() {
+        MinecraftActivityState.onDestroyed()
+        super.onDestroy()
 
-                // Load launcher core if mods disabled
-                val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", true)
-                if (!modsEnabled) {
-                    Log.d(TAG, "Loading game core...")
-                    System.loadLibrary("mtbinloader2")
+        val intent = Intent(applicationContext, com.origin.launcher.MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
 
-                    val pkgCtx = gameManager.getPackageContext().applicationInfo
-                    val libPath =
-                        if (pkgCtx.splitPublicSourceDirs?.isNotEmpty() == true) {
-                            // App bundle
-                            "${applicationContext.cacheDir.path}/lib/${android.os.Build.CPU_ABI}/libminecraftpe.so"
-                        } else {
-                            // Standard APK
-                            "${gameManager.getPackageContext().applicationInfo.nativeLibraryDir}/libminecraftpe.so"
-                        }
-
-                    nativeOnLauncherLoaded(libPath)
-                }
-
-                Log.i(TAG, "Game initialized successfully")
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize game in background", e)
-                runOnUiThread {
-                    Toast.makeText(
-                        this,
-                        "Failed to load game: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
-                }
-            }
-        }.start()
+        finishAndRemoveTask()
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     override fun getAssets(): AssetManager {
@@ -98,7 +98,79 @@ class MinecraftActivity : MainActivity() {
         }
     }
 
-    private external fun nativeOnLauncherLoaded(libPath: String)
+    override fun getFilesDir(): File {
+        val mcPath = intent.getStringExtra("MC_PATH")
+
+        return if (!mcPath.isNullOrEmpty()) {
+            val filesDir = File(mcPath, "games/com.mojang")
+            if (!filesDir.exists()) {
+                filesDir.mkdirs()
+            }
+            filesDir
+        } else {
+            super.getFilesDir()
+        }
+    }
+
+    override fun getDataDir(): File {
+        val mcPath = intent.getStringExtra("MC_PATH")
+
+        return if (!mcPath.isNullOrEmpty()) {
+            val dataDir = File(mcPath)
+            if (!dataDir.exists()) {
+                dataDir.mkdirs()
+            }
+            dataDir
+        } else {
+            super.getDataDir()
+        }
+    }
+
+    override fun getExternalFilesDir(type: String?): File? {
+        val mcPath = intent.getStringExtra("MC_PATH")
+
+        return if (!mcPath.isNullOrEmpty()) {
+            val externalDir = if (type != null) {
+                File(mcPath, "games/com.mojang/$type")
+            } else {
+                File(mcPath, "games/com.mojang")
+            }
+            if (!externalDir.exists()) {
+                externalDir.mkdirs()
+            }
+            externalDir
+        } else {
+            super.getExternalFilesDir(type)
+        }
+    }
+
+    override fun getDatabasePath(name: String): File {
+        val mcPath = intent.getStringExtra("MC_PATH")
+
+        return if (!mcPath.isNullOrEmpty()) {
+            val dbDir = File(mcPath, "databases")
+            if (!dbDir.exists()) {
+                dbDir.mkdirs()
+            }
+            File(dbDir, name)
+        } else {
+            super.getDatabasePath(name)
+        }
+    }
+
+    override fun getCacheDir(): File {
+        val mcPath = intent.getStringExtra("MC_PATH")
+
+        return if (!mcPath.isNullOrEmpty()) {
+            val cacheDir = File(mcPath, "cache")
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs()
+            }
+            cacheDir
+        } else {
+            super.getCacheDir()
+        }
+    }
 
     companion object {
         private const val TAG = "MinecraftActivity"
