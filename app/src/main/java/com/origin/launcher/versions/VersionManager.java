@@ -158,7 +158,7 @@ public class VersionManager {
     @NonNull
     private File getVersionDirForPackage(String packageName) {
         return new File(Environment.getExternalStorageDirectory(),
-                "games/com.origin/minecraft/" + packageName);
+                "games/xelo_client/minecraft/" + packageName);
     }
 
     private void restoreSelectedVersion() {
