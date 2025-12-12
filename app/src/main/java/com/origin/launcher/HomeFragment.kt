@@ -67,7 +67,7 @@ private lateinit var versionManager: VersionManager
         mbl2_button = view.findViewById(R.id.mbl2_load)
         versions_button = view.findViewById(R.id.versions_button)
         shareLogsButton = view.findViewById(R.id.share_logs_button)
-versionManager = VersionManager(requireContext())
+versionManager = VersionManager.get(requireContext())
 minecraftLauncher = MinecraftLauncher(requireActivity())
         val handler = Handler(Looper.getMainLooper())
 
@@ -127,16 +127,16 @@ private fun launchGameWithMinecraftLauncher() {
     val version = versionManager.getSelectedVersion()
     if (version == null) {
         mbl2_button.isEnabled = true
-        CustomAlertDialog(requireContext())
-            .setTitleText(getString(R.string.dialog_title_no_version))
-            .setMessage(getString(R.string.dialog_message_no_version))
-            .setPositiveButton(getString(R.string.dialog_positive_ok), null)
-            .show()
+        listener.append("
+No version selected")
+        Toast.makeText(requireContext(), "No version selected", Toast.LENGTH_SHORT).show()
         return
     }
 
     loadingDialog?.dismiss()
     loadingDialog = LoadingDialog(requireContext()).also { it.show() }
+    listener.append("
+Launching with version: ${version.displayName}")
 
     Thread {
         try {
@@ -146,7 +146,8 @@ private fun launchGameWithMinecraftLauncher() {
                 loadingDialog?.dismiss()
                 loadingDialog = null
                 mbl2_button.isEnabled = true
-                listener.text = "Launching Minecraft..."
+                listener.append("
+Minecraft launch requested")
             }
         } catch (e: Exception) {
             requireActivity().runOnUiThread {
@@ -154,16 +155,10 @@ private fun launchGameWithMinecraftLauncher() {
                 loadingDialog = null
                 mbl2_button.isEnabled = true
 
-                CustomAlertDialog(requireContext())
-                    .setTitleText(getString(R.string.dialog_title_launch_failed))
-                    .setMessage(
-                        getString(
-                            R.string.dialog_message_launch_failed,
-                            e.message ?: "Unknown error"
-                        )
-                    )
-                    .setPositiveButton(getString(R.string.dialog_positive_ok), null)
-                    .show()
+                val msg = "Launch failed: ${e.message ?: "Unknown error"}"
+                listener.append("
+$msg")
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
             }
         }
     }.start()
