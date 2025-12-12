@@ -38,6 +38,9 @@ import kotlin.collections.ArrayList
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import com.origin.launcher.Launcher.MinecraftActivity
+import com.origin.launcher.Launcher.MinecraftLauncher
+import com.origin.launcher.versions.GameVersion
+import com.origin.launcher.versions.VersionManager
 
 class HomeFragment : BaseThemedFragment() {
 
@@ -50,6 +53,8 @@ class HomeFragment : BaseThemedFragment() {
     private lateinit var versions_button: Button
     private lateinit var shareLogsButton: MaterialButton
 private var loadingDialog: LoadingDialog? = null
+private lateinit var minecraftLauncher: MinecraftLauncher
+private lateinit var versionManager: VersionManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,49 +67,15 @@ private var loadingDialog: LoadingDialog? = null
         mbl2_button = view.findViewById(R.id.mbl2_load)
         versions_button = view.findViewById(R.id.versions_button)
         shareLogsButton = view.findViewById(R.id.share_logs_button)
+versionManager = VersionManager(requireContext())
+minecraftLauncher = MinecraftLauncher(requireActivity())
         val handler = Handler(Looper.getMainLooper())
 
         applyInitialTheme(view)
 
         mbl2_button.setOnClickListener {
-    mbl2_button.isEnabled = false
-    listener.text = "Starting Minecraft launcher..."
-    
-    val handler = Handler(Looper.getMainLooper())
-    val packageName = getPackageNameFromSettings()
-    
-    Executors.newSingleThreadExecutor().execute {
-        try {
-            val mcInfo = getMinecraftInfo(packageName)
-            val pathList = getPathList(requireActivity().classLoader)
-            
-            if (processNativeLibraries(mcInfo, pathList, handler, listener)) {
-                handler.postDelayed({
-                    try {
-                        val intent = Intent(requireContext(), MinecraftActivity::class.java)
-                        intent.putExtra("MODS_ENABLED", true)
-                        startActivity(intent)
-listener.append("""
--> MinecraftActivity launched!
-""".trimIndent())
-                    } catch (e: Exception) {
-                        listener.text = "Activity launch failed: ${e.message}"
-                        mbl2_button.isEnabled = true
-                    }
-                }, 1000)
-            } else {
-                handler.post { mbl2_button.isEnabled = true }
-            }
-        } catch (e: Exception) {
-            handler.post {
-                listener.text = "Launch failed: ${e.message}"
-                mbl2_button.isEnabled = true
-            }
-        }
-    }
+    launchGameWithMinecraftLauncher()
 }
-
-
         mbl2_button.setOnLongClickListener {
             clearSelectedApk()
             true
@@ -148,6 +119,54 @@ private fun getMinecraftInfo(packageName: String): ApplicationInfo {
     } else {
         requireActivity().packageManager.getApplicationInfo(packageName, 0)
     }
+}
+
+private fun launchGameWithMinecraftLauncher() {
+    mbl2_button.isEnabled = false
+
+    val version = versionManager.getSelectedVersion()
+    if (version == null) {
+        mbl2_button.isEnabled = true
+        CustomAlertDialog(requireContext())
+            .setTitleText(getString(R.string.dialog_title_no_version))
+            .setMessage(getString(R.string.dialog_message_no_version))
+            .setPositiveButton(getString(R.string.dialog_positive_ok), null)
+            .show()
+        return
+    }
+
+    loadingDialog?.dismiss()
+    loadingDialog = LoadingDialog(requireContext()).also { it.show() }
+
+    Thread {
+        try {
+            minecraftLauncher.launch(requireActivity().intent, version)
+
+            requireActivity().runOnUiThread {
+                loadingDialog?.dismiss()
+                loadingDialog = null
+                mbl2_button.isEnabled = true
+                listener.text = "Launching Minecraft..."
+            }
+        } catch (e: Exception) {
+            requireActivity().runOnUiThread {
+                loadingDialog?.dismiss()
+                loadingDialog = null
+                mbl2_button.isEnabled = true
+
+                CustomAlertDialog(requireContext())
+                    .setTitleText(getString(R.string.dialog_title_launch_failed))
+                    .setMessage(
+                        getString(
+                            R.string.dialog_message_launch_failed,
+                            e.message ?: "Unknown error"
+                        )
+                    )
+                    .setPositiveButton(getString(R.string.dialog_positive_ok), null)
+                    .show()
+            }
+        }
+    }.start()
 }
 
     private fun applyInitialTheme(view: View) {
