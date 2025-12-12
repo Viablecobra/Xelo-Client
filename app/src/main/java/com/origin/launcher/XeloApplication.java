@@ -2,6 +2,8 @@ package com.origin.launcher;
 
 import android.app.Application;
 import android.util.Log;
+import xcrash.XCrash;
+
 
 public class XeloApplication extends Application {
     private static final String TAG = "XeloApplication";
@@ -11,6 +13,10 @@ public class XeloApplication extends Application {
         super.onCreate();
 
         Log.d(TAG, "Initializing Xelo Application");
+
+// Initialize XCrash handler
+
+XCrash.init(this);
 
         // Initialize ThemeManager globally
         ThemeManager.getInstance(this);
