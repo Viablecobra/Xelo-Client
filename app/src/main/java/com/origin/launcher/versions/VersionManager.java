@@ -37,28 +37,6 @@ public class VersionManager {
     private GameVersion selectedVersion;
     private final SharedPreferences prefs;
 
-    public interface LibsRepairCallback {
-        void onRepairStarted();
-
-        void onRepairProgress(int progress);
-
-        void onRepairCompleted(boolean success);
-
-        void onRepairFailed(Exception e);
-    }
-
-    public interface OnDeleteVersionCallback {
-        void onDeleteCompleted(boolean success);
-
-        void onDeleteFailed(Exception e);
-    }
-
-    public interface OnRenameVersionCallback {
-        void onRenameCompleted(boolean success);
-
-        void onRenameFailed(Exception e);
-    }
-
     public static VersionManager get(Context ctx) {
         if (instance == null) instance = new VersionManager(ctx.getApplicationContext());
         return instance;
@@ -117,11 +95,7 @@ public class VersionManager {
         // APK parsing removed — keep stub returning "unknown" in case callers exist elsewhere
         return "unknown";
     }
-
-    /**
-     * Load installed Minecraft packages only.
-     * (All repair/extraction logic removed — this loads installed packages only)
-     */
+    
     public void loadAllVersions() {
         installedVersions.clear();
 
@@ -158,7 +132,7 @@ public class VersionManager {
     @NonNull
     private File getVersionDirForPackage(String packageName) {
         return new File(Environment.getExternalStorageDirectory(),
-                "games/com.origin/minecraft/" + packageName);
+                "games/xelo_client/minecraft/" + packageName);
     }
 
     private void restoreSelectedVersion() {
