@@ -53,7 +53,7 @@ class LauncherApplication : Application() {
           } catch (e: Exception) {
             e.printStackTrace()
         }
-        DynamicColors.applyToActivitiesIfAvailable(this)
+        
     }
 
     companion object {
