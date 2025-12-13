@@ -16,17 +16,16 @@ class MinecraftLauncher(private val context: Context) {
 
     companion object {
     private const val TAG = "MinecraftLauncher"
-    const val MC_PACKAGE_NAME = "com.mojang.minecraftpe"
     const val PREF_PACKAGE_NAME = "mc_package_name"
 
-        fun abiToSystemLibDir(abi: String): String {
-            return when (abi) {
-                "arm64-v8a" -> "arm64"
-                "armeabi-v7a" -> "arm"
-                else -> abi
-            }
+    fun abiToSystemLibDir(abi: String): String {
+        return when (abi) {
+            "arm64-v8a" -> "arm64"
+            "armeabi-v7a" -> "arm"
+            else -> abi
         }
     }
+}
 
     private var gameManager: GamePackageManager? = null
     private var loadingDialog: LoadingDialog? = null
@@ -94,7 +93,12 @@ class MinecraftLauncher(private val context: Context) {
 
 private fun getConfiguredPackageName(): String {
     val prefs = context.getSharedPreferences("settings", 0)
-    return prefs.getString(PREF_PACKAGE_NAME, MC_PACKAGE_NAME) ?: MC_PACKAGE_NAME
+    val packageName = prefs.getString(PREF_PACKAGE_NAME, null)
+    
+    return packageName ?: run {
+        Log.e(TAG, "No Minecraft package name configured in settings!")
+        throw IllegalStateException("Minecraft package name not set in settings")
+    }
 }
 
     private fun launchMinecraftActivity(sourceIntent: Intent, version: GameVersion, modsEnabled: Boolean) {
@@ -109,10 +113,28 @@ private fun getConfiguredPackageName(): String {
                 sourceIntent.setClass(context, MinecraftActivity::class.java)
 
                 val mcInfo = if (version.isInstalled) {
-    gameManager?.getPackageContext()?.applicationInfo
+    gameManager?.getPackageContext()?.applicationInfo?.also { info ->
+        if (info == null) {
+            Log.e(TAG, "Can't detect Minecraft - getPackageContext() returned null")
+        }
+    }
 } else {
-    val pkg = getConfiguredPackageName()
-    createFakeApplicationInfo(version, pkg)
+    try {
+        val pkg = getConfiguredPackageName()
+        createFakeApplicationInfo(version, pkg)
+    } catch (e: Exception) {
+        Log.e(TAG, "Can't detect Minecraft - ${e.message}")
+        null
+    }
+}
+
+if (mcInfo == null) {
+    Log.e(TAG, "Can't detect Minecraft - mcInfo is null, aborting launch")
+    activity.runOnUiThread {
+        dismissLoading()
+        Toast.makeText(context, "Can't detect Minecraft - check settings", Toast.LENGTH_LONG).show()
+    }
+    return@Thread
 }
 
                 mcInfo?.let {
