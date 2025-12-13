@@ -127,7 +127,6 @@ class MinecraftLauncher(private val context: Context) {
                         loadLibrary("fmod")
                         loadLibrary("MediaDecoders_Android")
                         loadLibrary("minecraftpe")
-                        loadLibrary("mtbinloader2")
                     }
                 }
 
