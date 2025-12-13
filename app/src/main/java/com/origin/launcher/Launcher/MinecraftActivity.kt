@@ -13,12 +13,6 @@ import java.io.File
 class MinecraftActivity : MainActivity() {
 
     private lateinit var gameManager: GamePackageManager
-    
-    val prefs = getSharedPreferences("settings", MODE_PRIVATE)
-val mcPackageName = prefs.getString(
-    "mc_package_name",
-    "com.mojang.minecraftpe"
-)!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
@@ -26,24 +20,6 @@ val mcPackageName = prefs.getString(
             val versionCode = intent.getStringExtra("MINECRAFT_VERSION") ?: ""
             val versionDirName = intent.getStringExtra("MINECRAFT_VERSION_DIR") ?: ""
             val isInstalled = intent.getBooleanExtra("IS_INSTALLED", false)
-
-val prefs = getSharedPreferences("settings", MODE_PRIVATE)
-val mcPackageName = prefs.getString(
-    "mc_package_name",
-    "com.mojang.minecraftpe"
-)!!
-
-try {
-    packageManager.getPackageInfo(mcPackageName, 0)
-} catch (e: Exception) {
-    Toast.makeText(
-        this,
-        "Minecraft package not installed: $mcPackageName",
-        Toast.LENGTH_LONG
-    ).show()
-    finish()
-    return
-}
 
             val version = if (!versionDir.isNullOrEmpty()) {
                 GameVersion(
@@ -86,6 +62,26 @@ try {
             return
         }
         super.onCreate(savedInstanceState)
+
+val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+val mcPackageName = prefs.getString(
+    "mc_package_name",
+    "com.mojang.minecraftpe"
+)!!
+
+try {
+    packageManager.getPackageInfo(mcPackageName, 0)
+} catch (e: Exception) {
+    Toast.makeText(
+        this,
+        "Minecraft package not installed: $mcPackageName",
+        Toast.LENGTH_LONG
+    ).show()
+    finish()
+    return
+}
+
+
         MinecraftActivityState.onCreated(this)
     }
 
