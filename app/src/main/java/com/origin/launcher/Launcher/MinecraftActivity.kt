@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import com.mojang.minecraftpe.MainActivity
 import com.origin.launcher.versions.GameVersion
-import com.origin.launcher.SettingsFragment
 import java.io.File
 
 class MinecraftActivity : MainActivity() {
@@ -21,34 +20,13 @@ class MinecraftActivity : MainActivity() {
             val versionDirName = intent.getStringExtra("MINECRAFT_VERSION_DIR") ?: ""
             val isInstalled = intent.getBooleanExtra("IS_INSTALLED", false)
 
-        super.onCreate(savedInstanceState)
-
-val prefs = getSharedPreferences("settings", MODE_PRIVATE)
-val mcPackageName = prefs.getString(
-    "mc_package_name",
-    "com.mojang.minecraftpe"
-)!!
-
-try {
-    packageManager.getPackageInfo(mcPackageName, 0)
-} catch (e: Exception) {
-    Toast.makeText(
-        this,
-        "Minecraft package not installed: $mcPackageName",
-        Toast.LENGTH_LONG
-    ).show()
-    finish()
-    return
-}
-
-val version = if (!versionDir.isNullOrEmpty()) {
+            val version = if (!versionDir.isNullOrEmpty()) {
                 GameVersion(
                     versionDirName,
                     versionCode,
                     versionCode,
                     File(versionDir),
                     isInstalled,
-                    mcPackageName,
                     ""
                 )
             } else if (!versionCode.isNullOrEmpty()) {
@@ -58,14 +36,13 @@ val version = if (!versionDir.isNullOrEmpty()) {
                     versionCode,
                     File(versionDir ?: ""),
                     true,
-                    mcPackageName,
                     ""
                 )
             } else {
                 null
             }
 
-            gameManager = GamePackageManager.getInstance(applicationContext)
+            gameManager = GamePackageManager.getInstance(applicationContext, version)
 
             try {
                 System.loadLibrary("preloader")
@@ -81,7 +58,7 @@ val version = if (!versionDir.isNullOrEmpty()) {
             finish()
             return
         }
-
+        super.onCreate(savedInstanceState)
         MinecraftActivityState.onCreated(this)
     }
 
@@ -103,7 +80,7 @@ val version = if (!versionDir.isNullOrEmpty()) {
         MinecraftActivityState.onDestroyed()
         super.onDestroy()
 
-        val intent = Intent(applicationContext, com.origin.launcher.HomeFragment::class.java)
+        val intent = Intent(applicationContext, com.origin.launcher.MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
 
@@ -132,7 +109,7 @@ val version = if (!versionDir.isNullOrEmpty()) {
     }
 
     override fun getDatabasePath(name: String): File {
-         return super.getDatabasePath(name)
+        return super.getDatabasePath(name)
     }
 
     override fun getCacheDir(): File {
