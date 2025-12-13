@@ -100,76 +100,85 @@ private fun getConfiguredPackageName(): String {
 }
 
     private fun launchMinecraftActivity(sourceIntent: Intent, version: GameVersion, modsEnabled: Boolean) {
-        val activity = context as Activity
+    val activity = context as Activity
 
-        Thread {
-            try {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                    sourceIntent.putExtra("DISABLE_SPLASH_SCREEN", true)
-                }
-
-                sourceIntent.setClass(context, MinecraftActivity::class.java)
-
-                val mcInfo = if (version.isInstalled) {
-    gameManager?.getPackageContext()?.applicationInfo?.also { info ->
-        if (info == null) {
-            Log.e(TAG, "Can't detect Minecraft - getPackageContext() returned null")
-        }
+    Log.d(TAG, "Launch attempt: isInstalled=${version.isInstalled}, versionDir=${version.versionDir.absolutePath}")
+    Log.d(TAG, "Package from settings: ${getConfiguredPackageName()}")
+    if (version.isInstalled) {
+        Log.d(TAG, "Using real package context")
+    } else {
+        Log.d(TAG, "Using fake info - base.apk.xelo exists: ${File(version.versionDir, "base.apk.xelo").exists()}")
+        Log.d(TAG, "Lib dir exists: ${File(context.dataDir, "minecraft/${version.directoryName}/lib").exists()}")
     }
-} else {
-    try {
-        val pkg = getConfiguredPackageName()
-        createFakeApplicationInfo(version, pkg)
-    } catch (e: Exception) {
-        Log.e(TAG, "Can't detect Minecraft - ${e.message}")
-        null
-    }
-}
 
-if (mcInfo == null) {
-    Log.e(TAG, "Can't detect Minecraft - mcInfo is null, aborting launch")
-    activity.runOnUiThread {
-        dismissLoading()
-        Toast.makeText(context, "Can't detect Minecraft - check settings", Toast.LENGTH_LONG).show()
-    }
-    return@Thread
-}
+    Thread {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                sourceIntent.putExtra("DISABLE_SPLASH_SCREEN", true)
+            }
 
-                mcInfo?.let {
-                    sourceIntent.putExtra("MC_SRC", it.sourceDir)
-                    it.splitSourceDirs?.let { splits ->
-                        sourceIntent.putExtra("MC_SPLIT_SRC", ArrayList(splits.asList()))
+            sourceIntent.setClass(context, MinecraftActivity::class.java)
+
+            val mcInfo = if (version.isInstalled) {
+                gameManager?.getPackageContext()?.applicationInfo?.also { info ->
+                    if (info == null) {
+                        Log.e(TAG, "Can't detect Minecraft - getPackageContext() returned null")
                     }
                 }
-
-                sourceIntent.putExtra("MODS_ENABLED", modsEnabled)
-                sourceIntent.putExtra("MINECRAFT_VERSION", version.versionCode)
-                sourceIntent.putExtra("MINECRAFT_VERSION_DIR", version.directoryName)
-
-                if (shouldLoadMaesdk(version)) {
-                    gameManager?.loadAllLibraries()
-                } else {
-                    gameManager?.apply {
-                        loadLibrary("c++_shared")
-                        loadLibrary("fmod")
-                        loadLibrary("MediaDecoders_Android")
-                        loadLibrary("minecraftpe")
-                    }
-                }
-
-                activity.runOnUiThread {
-                    dismissLoading()
-                    activity.startActivity(sourceIntent)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to launch Minecraft activity: ${e.message}", e)
-                activity.runOnUiThread {
-                    dismissLoading()
-                    Toast.makeText(context, "Failed to launch: ${e.message}", Toast.LENGTH_LONG).show()
+            } else {
+                try {
+                    val pkg = getConfiguredPackageName()
+                    createFakeApplicationInfo(version, pkg)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Can't detect Minecraft - ${e.message}")
+                    null
                 }
             }
-        }.start()
-    }
+
+            if (mcInfo == null) {
+                Log.e(TAG, "Can't detect Minecraft - mcInfo is null, aborting launch")
+                activity.runOnUiThread {
+                    dismissLoading()
+                    Toast.makeText(context, "Can't detect Minecraft - check settings", Toast.LENGTH_LONG).show()
+                }
+                return@Thread
+            }
+
+            mcInfo.let {
+                sourceIntent.putExtra("MC_SRC", it.sourceDir)
+                it.splitSourceDirs?.let { splits ->
+                    sourceIntent.putExtra("MC_SPLIT_SRC", ArrayList(splits.asList()))
+                }
+            }
+
+            sourceIntent.putExtra("MODS_ENABLED", modsEnabled)
+            sourceIntent.putExtra("MINECRAFT_VERSION", version.versionCode)
+            sourceIntent.putExtra("MINECRAFT_VERSION_DIR", version.directoryName)
+
+            if (shouldLoadMaesdk(version)) {
+                gameManager?.loadAllLibraries()
+            } else {
+                gameManager?.apply {
+                    loadLibrary("c++_shared")
+                    loadLibrary("fmod")
+                    loadLibrary("MediaDecoders_Android")
+                    loadLibrary("minecraftpe")
+                }
+            }
+
+            activity.runOnUiThread {
+                dismissLoading()
+                activity.startActivity(sourceIntent)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch Minecraft activity: ${e.message}", e)
+            activity.runOnUiThread {
+                dismissLoading()
+                Toast.makeText(context, "Failed to launch: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }.start()
+}
 
     private fun shouldLoadMaesdk(version: GameVersion?): Boolean {
         val versionCode = version?.versionCode ?: return false
