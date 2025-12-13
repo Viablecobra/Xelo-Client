@@ -35,7 +35,7 @@ class MinecraftActivity : MainActivity() {
             val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", false)
             if (!modsEnabled) {
                 Log.d(TAG, "Loading game core...")
-                System.loadLibrary("xelo_init")
+                System.loadLibrary("mtbinloader2")
 
                 val libPath = if (gameManager.getPackageContext().applicationInfo.splitPublicSourceDirs?.isNotEmpty() == true) {
                     // App bundle
