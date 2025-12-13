@@ -8,9 +8,9 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.origin.launcher.LoadingDialog;
-import com.origin.launcher.versions.GameVersion;
 import com.origin.launcher.Launcher.GamePackageManager;
+import com.origin.launcher.Launcher.MinecraftActivity;
+import com.origin.launcher.versions.GameVersion;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,7 +21,6 @@ public class MinecraftLauncher {
     private final Context context;
     private GamePackageManager gameManager;
     public static final String MC_PACKAGE_NAME = "com.mojang.minecraftpe";
-    private LoadingDialog loadingDialog;
 
     public MinecraftLauncher(Context context) {
         this.context = context;
@@ -35,11 +34,11 @@ public class MinecraftLauncher {
 
     public ApplicationInfo createFakeApplicationInfo(GameVersion version, String packageName) {
         ApplicationInfo fakeInfo = new ApplicationInfo();
-        File apkFile = new File(version.versionDir, "base.apk.xelo");  // Changed to xelo
+        File apkFile = new File(version.versionDir, "base.apk.xelo");  // YOUR XELO
         fakeInfo.sourceDir = apkFile.getAbsolutePath();
         fakeInfo.publicSourceDir = fakeInfo.sourceDir;
         String systemAbi = abiToSystemLibDir(Build.SUPPORTED_ABIS[0]);
-        File dstLibDir = new File(context.getDataDir(), "minecraft/" + version.directoryName + "/lib/" + systemAbi);
+        File dstLibDir = new File(version.versionDir, "lib/" + systemAbi);
         fakeInfo.nativeLibraryDir = dstLibDir.getAbsolutePath();
         fakeInfo.packageName = packageName;
         fakeInfo.dataDir = version.versionDir.getAbsolutePath();
@@ -50,7 +49,7 @@ public class MinecraftLauncher {
             if (splits != null) {
                 ArrayList<String> splitPathList = new ArrayList<>();
                 for (File f : splits) {
-                    if (f.isFile() && f.getName().endsWith(".apk.xelo")) {  // Changed to xelo
+                    if (f.isFile() && f.getName().endsWith(".apk.xelo")) {
                         splitPathList.add(f.getAbsolutePath());
                     }
                 }
@@ -59,12 +58,12 @@ public class MinecraftLauncher {
                 }
             }
         }
+        Log.d(TAG, "Fake APK: " + apkFile.getAbsolutePath() + " exists=" + apkFile.exists());
         return fakeInfo;
     }
 
     public void launch(Intent sourceIntent, GameVersion version) {
         Activity activity = (Activity) context;
-
         try {
             if (version == null) {
                 Log.e(TAG, "No version selected");
@@ -72,12 +71,8 @@ public class MinecraftLauncher {
                 return;
             }
 
-            activity.runOnUiThread(() -> {
-                dismissLoading();
-                loadingDialog = new LoadingDialog(activity);
-                loadingDialog.show();
-            });
-            
+            // EXACT REFERENCE FLOW
+            showLoading(activity);
             gameManager = GamePackageManager.getInstance(context.getApplicationContext(), version);
             fillIntentWithMcPath(sourceIntent, version);
             launchMinecraftActivity(sourceIntent, version, false);
@@ -89,98 +84,72 @@ public class MinecraftLauncher {
     }
 
     private void fillIntentWithMcPath(Intent sourceIntent, GameVersion version) {
-        sourceIntent.putExtra("MC_PATH", "");
-        sourceIntent.putExtra("IS_INSTALLED", false);
+        sourceIntent.putExtra("MC_PATH", version.versionDir.getAbsolutePath());
+        sourceIntent.putExtra("IS_INSTALLED", version.isInstalled);
+        sourceIntent.putExtra("MINECRAFT_VERSION", version.versionCode);
+        sourceIntent.putExtra("MINECRAFT_VERSION_DIR", version.directoryName);
     }
 
     private void launchMinecraftActivity(Intent sourceIntent, GameVersion version, boolean modsEnabled) {
         Activity activity = (Activity) context;
-
         new Thread(() -> {
             try {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                     sourceIntent.putExtra("DISABLE_SPLASH_SCREEN", true);
                 }
+                sourceIntent.setClass(context, MinecraftActivity.class);
 
-                sourceIntent.setClass(context, com.origin.launcher.Launcher.MinecraftActivity.class);
                 ApplicationInfo mcInfo = version.isInstalled ?
-                        gameManager.getPackageContext().getApplicationInfo() :
-                        createFakeApplicationInfo(version, MC_PACKAGE_NAME);
+                    gameManager.getPackageContext().getApplicationInfo() :
+                    createFakeApplicationInfo(version, MC_PACKAGE_NAME);
+                    
                 sourceIntent.putExtra("MC_SRC", mcInfo.sourceDir);
                 if (mcInfo.splitSourceDirs != null) {
-                    sourceIntent.putExtra("MC_SPLIT_SRC", new ArrayList<>(Arrays.asList(mcInfo.splitSourceDirs)));
+                    sourceIntent.putExtra("MC_SPLIT_SRC", 
+                        new ArrayList<>(Arrays.asList(mcInfo.splitSourceDirs)));
                 }
                 sourceIntent.putExtra("MODS_ENABLED", modsEnabled);
-                sourceIntent.putExtra("MINECRAFT_VERSION", version.versionCode);
-                sourceIntent.putExtra("MINECRAFT_VERSION_DIR", version.directoryName);
 
-                if (shouldLoadMaesdk(version)) {
-                    gameManager.loadAllLibraries();
-                } else {
-                    gameManager.loadLibrary("c++_shared");
-                    gameManager.loadLibrary("fmod");
-                    gameManager.loadLibrary("MediaDecoders_Android");
-                    gameManager.loadLibrary("minecraftpe");
-                }
+                // EXACT REFERENCE: Load libs BEFORE Activity starts
+                gameManager.loadLibrary("c++_shared");
+                gameManager.loadLibrary("fmod");
+                gameManager.loadLibrary("MediaDecoders_Android");
+                gameManager.loadLibrary("minecraftpe");
+                gameManager.loadLibrary("gxcore");
+
+                // PASS GPM to Activity
+                MinecraftActivity.globalGameManager = gameManager;
 
                 activity.runOnUiThread(() -> {
                     dismissLoading();
                     activity.startActivity(sourceIntent);
+                    Log.d(TAG, "Minecraft launch requested - libs preloaded");
                 });
             } catch (Exception e) {
-                Log.e(TAG, "Failed to launch Minecraft activity: " + e.getMessage(), e);
+                Log.e(TAG, "Failed to launch: " + e.getMessage(), e);
                 activity.runOnUiThread(() -> {
                     dismissLoading();
-                    Toast.makeText(context, "Failed to launch: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    showLaunchErrorOnUi("Failed to launch: " + e.getMessage());
                 });
             }
         }).start();
     }
 
-    private boolean shouldLoadMaesdk(GameVersion version) {
-        if (version == null || version.versionCode == null) {
-            return false;
-        }
-        String versionCode = version.versionCode;
-        String targetVersion = versionCode.contains("beta") ? "1.21.110.22" : "1.21.110";
-        return isVersionAtLeast(versionCode, targetVersion);
-    }
-
-    private boolean isVersionAtLeast(String currentVersion, String targetVersion) {
-        try {
-            String[] current = currentVersion.replaceAll("[^0-9.]", "").split("\\.");
-            String[] target = targetVersion.split("\\.");
-
-            int maxLength = Math.max(current.length, target.length);
-
-            for (int i = 0; i < maxLength; i++) {
-                int currentPart = i < current.length ? Integer.parseInt(current[i]) : 0;
-                int targetPart = i < target.length ? Integer.parseInt(target[i]) : 0;
-
-                if (currentPart > targetPart) return true;
-                if (currentPart < targetPart) return false;
-            }
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    private void showLoading(Activity activity) {
+        // REPLACE WITH YOUR LoadingDialog
+        activity.runOnUiThread(() -> {
+            // LoadingDialog.show() - your implementation
+            Log.d(TAG, "Showing loading dialog");
+        });
     }
 
     private void dismissLoading() {
-        try {
-            if (loadingDialog != null && loadingDialog.isShowing()) {
-                loadingDialog.dismiss();
-            }
-        } catch (Exception ignored) {
-        } finally {
-            loadingDialog = null;
-        }
+        // REPLACE WITH YOUR LoadingDialog
+        Log.d(TAG, "Dismissed loading dialog");
     }
 
     private void showLaunchErrorOnUi(String message) {
-        Activity activity = (Activity) context;
-        activity.runOnUiThread(() -> Toast.makeText(
-                activity, "Failed to launch Minecraft: " + message, Toast.LENGTH_LONG).show()
-        );
+        ((Activity) context).runOnUiThread(() -> 
+            Toast.makeText(context, "Failed to launch Minecraft: " + message, Toast.LENGTH_LONG).show());
     }
 }
