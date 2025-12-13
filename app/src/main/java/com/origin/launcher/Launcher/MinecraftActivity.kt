@@ -69,7 +69,7 @@ try {
                 null
             }
 
-            gameManager = GamePackageManager.getInstance(applicationContext, version)
+            gameManager = GamePackageManager.getInstance(applicationContext)
 
             try {
                 System.loadLibrary("preloader")
