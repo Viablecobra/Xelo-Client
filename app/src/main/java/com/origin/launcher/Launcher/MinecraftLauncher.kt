@@ -119,21 +119,14 @@ private fun getConfiguredPackageName(): String {
 
             sourceIntent.setClass(context, MinecraftActivity::class.java)
 
-            val mcInfo = if (version.isInstalled) {
-                gameManager?.getPackageContext()?.applicationInfo?.also { info ->
-                    if (info == null) {
-                        Log.e(TAG, "Can't detect Minecraft - getPackageContext() returned null")
-                    }
-                }
-            } else {
-                try {
-                    val pkg = getConfiguredPackageName()
-                    createFakeApplicationInfo(version, pkg)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Can't detect Minecraft - ${e.message}")
-                    null
-                }
-            }
+            val mcInfo = try {
+    Log.d(TAG, "Always using fake ApplicationInfo")
+    val pkg = getConfiguredPackageName()
+    createFakeApplicationInfo(version, pkg)
+} catch (e: Exception) {
+    Log.e(TAG, "Can't create fake ApplicationInfo - ${e.message}")
+    null
+}
 
             if (mcInfo == null) {
                 Log.e(TAG, "Can't detect Minecraft - mcInfo is null, aborting launch")
