@@ -6,8 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.mojang.minecraftpe.MainActivity
-import com.origin.launcher.versions.GameVersion
 import java.io.File
+import org.conscrypt.Conscrypt
+import java.security.Security
 
 class MinecraftActivity : MainActivity() {
 
@@ -15,40 +16,28 @@ class MinecraftActivity : MainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
-            val versionDir = intent.getStringExtra("MC_PATH")
-            val versionCode = intent.getStringExtra("MINECRAFT_VERSION") ?: ""
-            val versionDirName = intent.getStringExtra("MINECRAFT_VERSION_DIR") ?: ""
-            val isInstalled = intent.getBooleanExtra("IS_INSTALLED", false)
-
-            val version = if (!versionDir.isNullOrEmpty()) {
-                GameVersion(
-                    versionDirName,
-                    versionCode,
-                    versionCode,
-                    File(versionDir),
-                    isInstalled,
-                    ""
-                )
-            } else if (!versionCode.isNullOrEmpty()) {
-                GameVersion(
-                    versionDirName,
-                    versionCode,
-                    versionCode,
-                    File(versionDir ?: ""),
-                    true,
-                    ""
-                )
-            } else {
-                null
+            gameManager = GamePackageManager.getInstance(applicationContext)
+            
+            Log.d(TAG, "Setting up security provider...")
+            try {
+                Security.insertProviderAt(Conscrypt.newProvider(), 1)
+            } catch (e: Exception) {
+                Log.w(TAG, "Conscrypt init failed: ${e.message}")
             }
 
-            gameManager = GamePackageManager.getInstance(applicationContext, version)
-
+Log.d(TAG, "Loading native libraries...")
             try {
                 System.loadLibrary("preloader")
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to load preloader: ${e.message}")
             }
+            
+            val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", true)
+            if (!modsEnabled) {
+                Log.d(TAG, "Loading game core...")
+                System.loadLibrary("mtbinloader2")
+            }
+
 
             if (!gameManager.loadLibrary("minecraftpe")) {
                 throw RuntimeException("Failed to load libminecraftpe.so")
