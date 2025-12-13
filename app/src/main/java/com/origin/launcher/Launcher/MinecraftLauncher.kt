@@ -15,8 +15,9 @@ import java.io.File
 class MinecraftLauncher(private val context: Context) {
 
     companion object {
-        private const val TAG = "MinecraftLauncher"
-        const val MC_PACKAGE_NAME = "com.mojang.minecraftpe"
+    private const val TAG = "MinecraftLauncher"
+    const val MC_PACKAGE_NAME = "com.mojang.minecraftpe"
+    const val PREF_PACKAGE_NAME = "mc_package_name"
 
         fun abiToSystemLibDir(abi: String): String {
             return when (abi) {
@@ -91,6 +92,11 @@ class MinecraftLauncher(private val context: Context) {
         sourceIntent.putExtra("IS_INSTALLED", false)
     }
 
+private fun getConfiguredPackageName(): String {
+    val prefs = context.getSharedPreferences("settings", 0)
+    return prefs.getString(PREF_PACKAGE_NAME, MC_PACKAGE_NAME) ?: MC_PACKAGE_NAME
+}
+
     private fun launchMinecraftActivity(sourceIntent: Intent, version: GameVersion, modsEnabled: Boolean) {
         val activity = context as Activity
 
@@ -105,7 +111,8 @@ class MinecraftLauncher(private val context: Context) {
                 val mcInfo = if (version.isInstalled) {
     gameManager?.getPackageContext()?.applicationInfo
 } else {
-    createFakeApplicationInfo(version, MC_PACKAGE_NAME)
+    val pkg = getConfiguredPackageName()
+    createFakeApplicationInfo(version, pkg)
 }
 
                 mcInfo?.let {
