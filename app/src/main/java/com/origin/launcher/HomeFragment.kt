@@ -122,6 +122,9 @@ private fun getMinecraftInfo(packageName: String): ApplicationInfo {
 }
 
 private fun launchGameWithMinecraftLauncher() {
+
+Log.d("HOME_FRAGMENT", "LAUNCH BUTTON PRESSED!")
+
     mbl2_button.isEnabled = false
 
     val version = versionManager.getSelectedVersion()
