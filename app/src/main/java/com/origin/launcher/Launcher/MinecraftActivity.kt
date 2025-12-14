@@ -32,7 +32,7 @@ class MinecraftActivity : MainActivity() {
             gameManager.loadAllLibraries()
 
             // Load launcher core
-            val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", false)
+            val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", true)
             if (!modsEnabled) {
                 Log.d(TAG, "Loading game core...")
                 System.loadLibrary("mtbinloader2")
