@@ -32,9 +32,9 @@ class GamePackageManager private constructor(private val context: Context) {
         "libminecraftpe.so",
         "libmtbinloader2.so"
     )
-
     private val systemLoadLibs = arrayOf(
-        "libpairipcore.so"
+        "libpairipcore.so",
+        "libxelo.so"
     )
 
     init {
