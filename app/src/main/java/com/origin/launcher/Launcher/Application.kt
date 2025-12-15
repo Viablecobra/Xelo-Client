@@ -7,7 +7,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.origin.launcher.BuildConfig
-import com.origin.launcher.ConfigurationFragment
+import com.origin.launcher.FeatureSettings
 import xcrash.ICrashCallback
 import xcrash.XCrash
 import java.io.File

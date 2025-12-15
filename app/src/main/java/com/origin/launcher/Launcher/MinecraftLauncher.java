@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.origin.launcher.Launcher.mods.ModManager;
 import com.origin.launcher.Launcher.mods.ModNativeLoader;
 import com.origin.launcher.versions.GameVersion;
-import com.origin.launcher.ConfigurationFragment;
+import com.origin.launcher.FeatureSettings;
 import com.origin.launcher.LoadingDialog;
 import android.util.Log;
 
@@ -97,7 +97,7 @@ public class MinecraftLauncher {
     }
 
     private void fillIntentWithMcPath(Intent sourceIntent, GameVersion version) {
-        if (ConfigurationFragment.getInstance().isVersionIsolationEnabled()) {
+        if (FeatureSettings.getInstance().isVersionIsolationEnabled()) {
             sourceIntent.putExtra("MC_PATH", version.versionDir.getAbsolutePath());
             sourceIntent.putExtra("IS_INSTALLED", version.isInstalled);
         } else {

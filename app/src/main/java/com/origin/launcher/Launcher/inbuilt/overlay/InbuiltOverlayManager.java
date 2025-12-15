@@ -4,7 +4,7 @@ import android.app.Activity;
 
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
-import com.origin.launcher.ConfigurationFragment;
+import com.origin.launcher.FeatureSettings;
 
 import java.util.ArrayList;
 import java.util.List;
