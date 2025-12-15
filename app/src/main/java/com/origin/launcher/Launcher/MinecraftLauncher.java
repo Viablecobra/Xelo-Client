@@ -75,12 +75,6 @@ public class MinecraftLauncher {
                 return;
             }
 
-            if (version.needsRepair) {
-                activity.runOnUiThread(() ->
-                        com.origin.launcher.versions.VersionManager.attemptRepairLibs(activity, version)
-                );
-                return;
-            }
             activity.runOnUiThread(() -> {
                 dismissLoading();
                 loadingDialog = new LoadingDialog(activity);

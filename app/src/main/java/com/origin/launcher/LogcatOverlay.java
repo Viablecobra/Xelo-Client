@@ -33,6 +33,7 @@ import androidx.appcompat.widget.ListPopupWindow;
 import androidx.core.content.ContextCompat;
 
 import com.origin.launcher.R;
+import com.origin.launcher.SimpleTextWatcher;
 
 import java.util.*;
 import java.util.regex.Matcher;

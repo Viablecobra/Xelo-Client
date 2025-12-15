@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.animation.DynamicAnim;
+import com.origin.launcher.Adapter.SettingsAdapter;
 
 public class ConfigurationFragment extends BaseThemedFragment {
 
