@@ -1,4 +1,4 @@
-package com.origin.launcher
+package com.origin.launcher;
 
 import com.origin.launcher.Launcher.MinecraftActivity;
 import com.origin.launcher.Launcher.MinecraftActivityState;
