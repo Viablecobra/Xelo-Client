@@ -1,4 +1,4 @@
-package com.origin.launcher.Launcher
+package com.origin.launcher.Launcher;
 
 import android.app.Activity;
 import java.lang.ref.WeakReference;

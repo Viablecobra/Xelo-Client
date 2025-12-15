@@ -20,7 +20,7 @@ class LauncherApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
-        Feature.init(applicationContext)
+        FeatureSettings.init(applicationContext)
         LogcatOverlayManager.init(this)
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
