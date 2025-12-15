@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:padding="12dp"
     android:gravity="center_vertical"
-    android:background="@drawable/card_background"
+    android:background="@drawable/rounded_card_background"
     android:layout_marginBottom="8dp">
 
     <View
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/inbuilt_badge"
                 android:textSize="10sp"
-                android:textColor="@color/on_secondary"
+                android:textColor="@color/onSecondary"
                 android:background="@drawable/bg_inbuilt_badge"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
