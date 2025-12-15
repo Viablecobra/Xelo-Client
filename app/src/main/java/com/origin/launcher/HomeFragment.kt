@@ -37,7 +37,7 @@ import java.util.zip.ZipInputStream
 import kotlin.collections.ArrayList
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import com.origin.launcher.Launcher.MinecraftActivity
+import com.origin.launcher.Launcher.MinecraftLauncher
 
 class HomeFragment : BaseThemedFragment() {
 
@@ -81,11 +81,11 @@ private var loadingDialog: LoadingDialog? = null
             if (processNativeLibraries(mcInfo, pathList, handler, listener)) {
                 handler.postDelayed({
                     try {
-                        val intent = Intent(requireContext(), MinecraftActivity::class.java)
+                        val intent = Intent(requireContext(), MinecraftLauncher::class.java)
                         intent.putExtra("MODS_ENABLED", true)
                         startActivity(intent)
 listener.append("""
--> MinecraftActivity launched!
+-> MinecraftActivity launching!
 """.trimIndent())
                     } catch (e: Exception) {
                         listener.text = "Activity launch failed: ${e.message}"

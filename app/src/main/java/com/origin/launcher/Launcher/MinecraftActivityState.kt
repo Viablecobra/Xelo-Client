@@ -1,46 +1,43 @@
 package com.origin.launcher.Launcher
 
-import android.app.Activity
-import java.lang.ref.WeakReference
+import android.app.Activity;
+import java.lang.ref.WeakReference;
 
-object MinecraftActivityState {
-    @Volatile
-    private var running: Boolean = false
-    
-    @Volatile
-    private var resumed: Boolean = false
-    
-    private var currentActivityRef: WeakReference<Activity>? = null
+public final class MinecraftActivityState {
+    private static volatile boolean running = false;
+    private static volatile boolean resumed = false;
+    private static WeakReference<Activity> currentActivityRef;
 
-    @JvmStatic
-    fun onCreated(activity: Activity) {
-        running = true
-        currentActivityRef = WeakReference(activity)
+    private MinecraftActivityState() {}
+
+    public static void onCreated(Activity activity) {
+        running = true;
+        currentActivityRef = new WeakReference<>(activity);
     }
 
-    @JvmStatic
-    fun onResumed() {
-        resumed = true
+    public static void onResumed() {
+        resumed = true;
     }
 
-    @JvmStatic
-    fun onPaused() {
-        resumed = false
+    public static void onPaused() {
+        resumed = false;
     }
 
-    @JvmStatic
-    fun onDestroyed() {
-        running = false
-        resumed = false
-        currentActivityRef = null
+    public static void onDestroyed() {
+        running = false;
+        resumed = false;
+        currentActivityRef = null;
     }
 
-    @JvmStatic
-    fun isRunning(): Boolean = running
+    public static boolean isRunning() {
+        return running;
+    }
 
-    @JvmStatic
-    fun isResumed(): Boolean = resumed
+    public static boolean isResumed() {
+        return resumed;
+    }
 
-    @JvmStatic
-    fun getCurrentActivity(): Activity? = currentActivityRef?.get()
+    public static Activity getCurrentActivity() {
+        return currentActivityRef != null ? currentActivityRef.get() : null;
+    }
 }

@@ -1,6 +1,7 @@
 package com.origin.launcher;
 
 import android.content.Intent;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,26 +12,45 @@ import androidx.fragment.app.Fragment;
 import android.util.Log;
 import com.google.android.material.card.MaterialCardView;
 
-public class ConfigurationFragment extends BaseThemedFragment {
+public class ConfigurationFragment {
+    private static volatile ConfigurationFragment INSTANCE;
+    private static Context appContext;
+    private boolean versionIsolationEnabled = false;
+    private boolean logcatOverlayEnabled = false;
 
+    public enum StorageType {
+        INTERNAL,
+        EXTERNAL,
+        VERSION_ISOLATION
+    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_configuration, container, false);
-        
-        
-        return view;
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
     }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-        DiscordRPCHelper.getInstance().updateMenuPresence("Configuration");
+
+    public static ConfigurationFragment getInstance() {
+        if (INSTANCE == null) {
+            synchronized (ConfigurationFragment.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = SettingsStorage.load(appContext);
+                    if (INSTANCE == null) {
+                        INSTANCE = new ConfigurationFragment();
+                    }
+                }
+            }
+        }
+        return INSTANCE;
     }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-        DiscordRPCHelper.getInstance().updateIdlePresence();
+
+    public boolean isVersionIsolationEnabled() { return versionIsolationEnabled; }
+    public void setVersionIsolationEnabled(boolean enabled) { this.versionIsolationEnabled = enabled; autoSave(); }
+
+    public boolean isLogcatOverlayEnabled() { return logcatOverlayEnabled; }
+    public void setLogcatOverlayEnabled(boolean enabled) { this.logcatOverlayEnabled = enabled; autoSave(); }
+
+    private void autoSave() {
+        if (appContext != null) {
+            SettingsStorage.save(appContext, this);
+        }
     }
 }
