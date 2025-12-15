@@ -2,6 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="glow_green">#4AE0A0</color>
+    <color name="glow_cyan">#00FFFF</color>
+    <color name="outline">#BDBDBD</color>
+    <color name="scrim">#66000000</color>
+         
     
     <!-- Material Design 3 Dark Theme Colors -->
 <color name="background">#FF0A0A0A</color> <!-- Darker -->

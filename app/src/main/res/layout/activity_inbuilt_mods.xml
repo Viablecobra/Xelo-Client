@@ -33,14 +33,14 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_arrow_down"
                 android:rotation="90"
-                android:tint="@color/on_surface" />
+                android:tint="@color/onSurface" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/inbuilt_mods_title"
                 android:fontFamily="@font/mojangles"
-                android:textColor="@color/on_surface"
+                android:textColor="@color/onSurface"
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/inbuilt_mods_subtitle"
-            android:textColor="@color/on_surface"
+            android:textColor="@color/onSurface"
             android:textSize="14sp"
             android:fontFamily="@font/mojangles"
             android:alpha="0.7"
@@ -71,7 +71,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="@string/no_inbuilt_mods_available"
-                android:textColor="@color/on_surface"
+                android:textColor="@color/onSurface"
                 android:textSize="16sp"
                 android:fontFamily="@font/mojangles"
                 android:alpha="0.5"
