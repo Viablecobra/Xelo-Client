@@ -310,7 +310,6 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
             defaultConfig.put("white_block_outline", false);
             defaultConfig.put("no_flipbook_animations", false);
             defaultConfig.put("no_shadows", false);
-            defaultConfig.put("night_vision", false);
             defaultConfig.put("no_spyglass_overlay", false);
             defaultConfig.put("no_pumpkin_overlay", false);
             defaultConfig.put("double_tppview", false);
