@@ -55,7 +55,7 @@
         android:hardwareAccelerated="true">
 
 <activity
-    android:name=".Launcher.MinecraftActivity"
+    android:name=".Launcher.MinecraftLauncher"
     android:exported="true"
    android:screenOrientation="sensorLandscape"  android:theme="@style/AppFullScreenTheme" />
 
