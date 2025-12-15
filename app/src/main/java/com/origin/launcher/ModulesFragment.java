@@ -85,7 +85,7 @@ public class ModulesFragment extends BaseThemedFragment {
     
     private void initializeModules(View view) {
         // Initialize config file path
-        configFile = new File(getContext().getExternalFilesDir(null), "origin_mods/config.json");
+        configFile = new File("/storage/emulated/0/games/xelo_client/xelo_mods/config.json");
         
         // Get ScrollView and container
         modulesScrollView = view.findViewById(R.id.modulesScrollView);
@@ -98,7 +98,6 @@ public class ModulesFragment extends BaseThemedFragment {
             // Initialize module items
             moduleItems = new ArrayList<>();
             moduleItems.add(new ModuleItem("No hurt cam", "allows you to toggle the in-game hurt cam", "Nohurtcam"));
-            moduleItems.add(new ModuleItem("Fullbright", "(Doesnt work with No fog) ofcouse lets u see in the dark moron", "night_vision"));
             moduleItems.add(new ModuleItem("No Fog", "(Doesnt work with fullbright) allows you to toggle the in-game fog", "Nofog"));
             moduleItems.add(new ModuleItem("Particles Disabler", "allows you to toggle the in-game particles", "particles_disabler"));
             moduleItems.add(new ModuleItem("Java Fancy Clouds", "Changes the clouds to Java Fancy Clouds", "java_clouds"));
@@ -111,6 +110,7 @@ public class ModulesFragment extends BaseThemedFragment {
             moduleItems.add(new ModuleItem("White Block Outline", "changes the block selection outline to white", "white_block_outline"));
             moduleItems.add(new ModuleItem("No pumpkin overlay", "disables the dark blurry overlay when wearing pumpkin", "no_pumpkin_overlay"));
             moduleItems.add(new ModuleItem("No spyglass overlay", "disables the spyglass overlay when using spyglass", "no_spyglass_overlay"));
+moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossHair", "custom_cross_hair"));
             
             // Load current config state and populate modules
             loadModuleStates();
@@ -310,11 +310,12 @@ public class ModulesFragment extends BaseThemedFragment {
             defaultConfig.put("white_block_outline", false);
             defaultConfig.put("no_flipbook_animations", false);
             defaultConfig.put("no_shadows", false);
-            defaultConfig.put("night_vision", false);
             defaultConfig.put("no_spyglass_overlay", false);
             defaultConfig.put("no_pumpkin_overlay", false);
             defaultConfig.put("double_tppview", false);
             defaultConfig.put("xelo_title", true);
+
+defaultConfig.put("custom_cross_hair", false);
             
             try (FileWriter writer = new FileWriter(configFile)) {
                 writer.write(defaultConfig.toString(2)); // Pretty print with indent

@@ -29,20 +29,13 @@ class MinecraftActivity : MainActivity() {
             }
 
             Log.d(TAG, "Loading native libraries...")
-
-            try {
-                System.loadLibrary("preloader")
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to load preloader: ${e.message}")
-            }
-
             gameManager.loadAllLibraries()
 
             // Load launcher core
             val modsEnabled = intent.getBooleanExtra("MODS_ENABLED", true)
             if (!modsEnabled) {
                 Log.d(TAG, "Loading game core...")
-                System.loadLibrary("mtbinloader2")
+                System.loadLibrary("xelo_init")
 
                 val libPath = if (gameManager.getPackageContext().applicationInfo.splitPublicSourceDirs?.isNotEmpty() == true) {
                     // App bundle
