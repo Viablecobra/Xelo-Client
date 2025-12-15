@@ -17,7 +17,7 @@ import com.origin.launcher.animation.DynamicAnim;
 
 import java.util.List;
 
-public class InbuiltModsActivity extends BaseActivity {
+public class InbuiltModsActivity extends BaseThemedActivity {
 
     private RecyclerView recyclerView;
     private InbuiltModsAdapter adapter;

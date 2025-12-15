@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import java.util.List;
 
-public class IntentHandler extends BaseActivity {
+public class IntentHandler extends BaseThemedActivity {
     private static final String TAG = "IntentHandler";
 
     @Override
