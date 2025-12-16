@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
-import com.origin.launcher.adapter.InbuiltModsAdapter;
+import com.origin.launcher.Adapter.InbuiltModsAdapter;
 import com.origin.launcher.animation.DynamicAnim;
 
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ public class InbuiltModsActivity extends BaseThemedActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         emptyText = findViewById(R.id.empty_inbuilt_text);
+
         adapter = new InbuiltModsAdapter();
         adapter.setOnToggleClickListener((mod, enable) -> {
             if (enable) {
@@ -70,19 +71,18 @@ public class InbuiltModsActivity extends BaseThemedActivity {
     private void loadMods() {
         List<InbuiltMod> allMods = modManager.getAllMods(this);
         List<InbuiltMod> displayMods = new ArrayList<>();
-        
+
         for (InbuiltMod mod : allMods) {
             boolean isAdded = modManager.isModAdded(mod.getId());
             InbuiltMod displayMod = new InbuiltMod(
-                mod.getId(),
-                mod.getName(),
-                mod.getDescription(),
-                mod.requiresOptions(),
-                isAdded
+                    mod.getId(),
+                    mod.getName(),
+                    mod.getDescription(),
+                    isAdded
             );
             displayMods.add(displayMod);
         }
-        
+
         adapter.updateMods(displayMods);
         emptyText.setVisibility(displayMods.isEmpty() ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(displayMods.isEmpty() ? View.GONE : View.VISIBLE);
