@@ -15,7 +15,6 @@ import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
 import com.origin.launcher.Adapter.InbuiltModsAdapter;
 import com.origin.launcher.animation.DynamicAnim;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class InbuiltModsActivity extends BaseThemedActivity {
@@ -50,7 +49,7 @@ public class InbuiltModsActivity extends BaseThemedActivity {
 
         emptyText = findViewById(R.id.empty_inbuilt_text);
 
-        adapter = new InbuiltModsAdapter();
+        adapter = new InbuiltModsAdapter(modManager);
         adapter.setOnToggleClickListener((mod, enable) -> {
             if (enable) {
                 modManager.addMod(mod.getId());
@@ -69,22 +68,10 @@ public class InbuiltModsActivity extends BaseThemedActivity {
     }
 
     private void loadMods() {
-        List<InbuiltMod> allMods = modManager.getAllMods(this);
-        List<InbuiltMod> displayMods = new ArrayList<>();
-
-        for (InbuiltMod mod : allMods) {
-            boolean isAdded = modManager.isModAdded(mod.getId());
-            InbuiltMod displayMod = new InbuiltMod(
-                    mod.getId(),
-                    mod.getName(),
-                    mod.getDescription()
-            );
-            displayMods.add(displayMod);
-        }
-
-        adapter.updateMods(displayMods);
-        emptyText.setVisibility(displayMods.isEmpty() ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(displayMods.isEmpty() ? View.GONE : View.VISIBLE);
+        List<InbuiltMod> mods = modManager.getAllMods(this);
+        adapter.updateMods(mods);
+        emptyText.setVisibility(mods.isEmpty() ? View.VISIBLE : View.GONE);
+        recyclerView.setVisibility(mods.isEmpty() ? View.GONE : View.VISIBLE);
         recyclerView.post(() -> DynamicAnim.staggerRecyclerChildren(recyclerView));
     }
 }
