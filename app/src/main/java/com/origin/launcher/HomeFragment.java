@@ -133,7 +133,7 @@ private void showVersionIsolationDialog() {
 }
 
 private void setupManagersAndHandlers() {
-    versionManager = new VersionManager(requireContext());
+    versionManager = VersionManager.get(requireContext());
     versionManager.loadAllVersions();
     minecraftLauncher = new MinecraftLauncher(requireContext());
 }
