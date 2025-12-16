@@ -77,8 +77,7 @@ public class InbuiltModsActivity extends BaseThemedActivity {
             InbuiltMod displayMod = new InbuiltMod(
                     mod.getId(),
                     mod.getName(),
-                    mod.getDescription(),
-                    isAdded
+                    mod.getDescription()
             );
             displayMods.add(displayMod);
         }
