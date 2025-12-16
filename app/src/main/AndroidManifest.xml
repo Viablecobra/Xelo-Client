@@ -117,7 +117,26 @@
                 <data android:host="*" />
                 <data android:scheme="file" />
                 <data android:scheme="content" />
-                <data android:pathPattern=".*\\.(mcworld|mcpack|mcaddon|mctemplate)" />
+                <data android:pathPattern=".*\\.mcworld"/>
+                <data android:pathPattern=".*\\..*\\.mcworld"/>
+                <data android:pathPattern=".*\\..*\\..*\\.mcworld"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.mcworld"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mcworld"/>
+                <data android:pathPattern=".*\\.mcpack"/>
+                <data android:pathPattern=".*\\..*\\.mcpack"/>
+                <data android:pathPattern=".*\\..*\\..*\\.mcpack"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.mcpack"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mcpack"/>
+                <data android:pathPattern=".*\\.mcaddon"/>
+                <data android:pathPattern=".*\\..*\\.mcaddon"/>
+                <data android:pathPattern=".*\\..*\\..*\\.mcaddon"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.mcaddon"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mcaddon"/>
+                <data android:pathPattern=".*\\.mctemplate"/>
+                <data android:pathPattern=".*\\..*\\.mctemplate"/>
+                <data android:pathPattern=".*\\..*\\..*\\.mctemplate"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.mctemplate"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mctemplate"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="xbox_live_game_invite" />
