@@ -54,6 +54,14 @@ import android.util.Log;
 import android.widget.Toast;
 import com.origin.launcher.MainActivity;
 import com.origin.launcher.Launcher.MinecraftLauncher;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.origin.launcher.versions.VersionManager;
+import java.util.concurrent.ExecutorService;
+import android.view.MotionEvent;
+import android.content.Context;
+import com.origin.launcher.FeatureSettings;
+import com.origin.launcher.ResourcepackHandler;
 
 public class HomeFragment extends BaseThemedFragment {
 
@@ -64,7 +72,75 @@ public class HomeFragment extends BaseThemedFragment {
     private com.google.android.material.button.MaterialButton shareLogsButton;
     private MinecraftLauncher minecraftLauncher;
     private VersionManager versionManager;
-private ActivityMainBinding binding;
+    
+
+    
+private void launchGame() {
+    if (mbl2_button == null) return;
+    
+    mbl2_button.setEnabled(false);
+
+    GameVersion version = versionManager != null ? versionManager.getSelectedVersion() : null;
+
+    if (version == null) {
+        mbl2_button.setEnabled(true);
+        showErrorDialog("No Version", "Please select a Minecraft version first.");
+        return;
+    }
+
+    if (!version.isInstalled && !FeatureSettings.getInstance().isVersionIsolationEnabled()) {
+        mbl2_button.setEnabled(true);
+        showVersionIsolationDialog();
+        return;
+    }
+    
+    new Thread(() -> {
+        try {
+            minecraftLauncher.launch(requireActivity().getIntent(), version);
+            requireActivity().runOnUiThread(() -> {
+                mbl2_button.setEnabled(true);
+                if (listener != null) listener.setText("Minecraft launched successfully");
+            });
+        } catch (Exception e) {
+            requireActivity().runOnUiThread(() -> {
+                mbl2_button.setEnabled(true);
+                showErrorDialog("Launch Failed", e.getMessage());
+            });
+        }
+    }).start();
+}
+
+private void showErrorDialog(String title, String message) {
+    new AlertDialog.Builder(requireContext())
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton("OK", null)
+        .show();
+}
+
+private void showVersionIsolationDialog() {
+    new AlertDialog.Builder(requireContext())
+        .setTitle("Version Isolation Required")
+        .setMessage("Enable version isolation to launch uninstalled versions?")
+        .setPositiveButton("Enable", (dialog, which) -> {
+            FeatureSettings.getInstance().setVersionIsolationEnabled(true);
+            launchGame();
+        })
+        .setNegativeButton("Cancel", null)
+        .show();
+}
+
+private void setupManagersAndHandlers() {
+    versionManager = new VersionManager(requireContext());
+    versionManager.loadAllVersions();
+    minecraftLauncher = new MinecraftLauncher(requireContext());
+}
+
+private void checkResourcepack() {
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    new ResourcepackHandler(requireContext(), minecraftLauncher, executorService)
+        .checkIntentForResourcepack();
+}
 
 
     @Override
@@ -101,7 +177,7 @@ private ActivityMainBinding binding;
                         R.anim.slide_in_left,   
                         R.anim.slide_out_left 
                     )
-                    .replace(android.R.id.content, new VersionsFragment())
+                    .replace(R.id.fragment_container, new VersionsFragment())
                     .addToBackStack(null)
                     .commit();
 
@@ -128,6 +204,22 @@ private ActivityMainBinding binding;
 
         return view;
     }
+    
+@Override
+public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    setupManagersAndHandlers();
+    checkResourcepack();
+}
+
+@Override
+public void onDestroyView() {
+    super.onDestroyView();
+    listener = null;
+    mbl2_button = null;
+    versions_button = null;
+    shareLogsButton = null;
+}
 
     /**
      * Apply initial theme to all views
