@@ -306,11 +306,20 @@ private void showThanksDialog(SharedPreferences prefs) {
     snapHelper.attachToRecyclerView(recycler);
 
     
-    recycler.scrollToPosition(0);
-    new Handler().post(() -> {
-    snapHelper.attachToRecyclerView(null);
-    snapHelper.attachToRecyclerView(recycler);
-    recycler.scrollToPosition(0);
+    recycler.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                               int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        recycler.removeOnLayoutChangeListener(this);
+        RecyclerView.ViewHolder vh = recycler.findViewHolderForAdapterPosition(0);
+        if (vh != null) {
+            int[] snapDistance = snapHelper.calculateDistanceToFinalSnap(
+                    recycler.getLayoutManager(), vh.itemView);
+            if (snapDistance != null) {
+                recycler.smoothScrollBy(snapDistance[0], snapDistance[1]);
+            }
+        }
+    }
 });
 
     
