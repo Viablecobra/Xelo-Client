@@ -124,7 +124,6 @@ public class ModulesFragment extends BaseThemedFragment {
 moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossHair", "custom_cross_hair"));
             
             // Load current config state and populate modules
-            addInbuiltModsEntry();
             loadModuleStates();
             populateModules();
         }
