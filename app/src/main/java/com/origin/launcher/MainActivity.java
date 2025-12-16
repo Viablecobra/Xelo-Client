@@ -38,6 +38,16 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
+import com.origin.launcher.Launcher.MinecraftLauncher;
+import com.origin.launcher.versions.GameVersion;
+import com.origin.launcher.versions.VersionManager;
+import com.origin.launcher.databinding.ActivityMainBinding;
+import com.origin.launcher.FeatureSettings;
+import com.origin.launcher.animation.DynamicAnim;
+import com.origin.launcher.HomeFragment;
+
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
     private static final String PREFS_NAME = "app_preferences";
@@ -48,6 +58,10 @@ private static final String KEY_CREDITS_SHOWN = "credits_shown";
     private SettingsFragment settingsFragment;
     private int currentFragmentIndex = 0;
     private LinearProgressIndicator globalProgress;
+    private Button mbl2_button;
+    private MinecraftLauncher minecraftLauncher;
+    private VersionManager versionManager;
+private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +123,65 @@ private static final String KEY_CREDITS_SHOWN = "credits_shown";
     
     private int getCurrentFragmentIndex() {
         return currentFragmentIndex;
+    }
+    
+private void setupManagersAndHandlers() {
+        versionManager.loadAllVersions();
+        minecraftLauncher = new MinecraftLauncher(this);
+    }
+
+   private void checkResourcepack() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        new ResourcepackHandler(
+                this, minecraftLauncher, executorService
+        ).checkIntentForResourcepack();
+    }
+
+    private void launchGame() {
+        binding.mbl2_button.setEnabled(false);
+
+        GameVersion version = versionManager != null ? versionManager.getSelectedVersion() : null;
+
+        if (version == null) {
+            binding.mbl2_button.setEnabled(true);
+            new CustomAlertDialog(this)
+                    .setTitleText(getString(R.string.dialog_title_no_version))
+                    .setMessage(getString(R.string.dialog_message_no_version))
+                    .setPositiveButton(getString(R.string.dialog_positive_ok), null)
+                    .show();
+            return;
+        }
+
+        if (!version.isInstalled && !FeatureSettings.getInstance().isVersionIsolationEnabled()) {
+            binding.mbl2_button.setEnabled(true);
+            new CustomAlertDialog(this)
+                    .setTitleText(getString(R.string.dialog_title_version_isolation))
+                    .setMessage(getString(R.string.dialog_message_version_isolation))
+                    .setPositiveButton(getString(R.string.dialog_positive_enable), v -> {
+                        FeatureSettings.getInstance().setVersionIsolationEnabled(true);
+                        launchGame();
+                    })
+                    .setNegativeButton(getString(R.string.dialog_negative_cancel), null)
+                    .show();
+            return;
+        }
+        new Thread(() -> {
+            try {
+                minecraftLauncher.launch(getIntent(), version);
+                runOnUiThread(() -> {
+                    binding.mbl2_button.setEnabled(true);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    binding.mbl2_button.setEnabled(true);
+                    new CustomAlertDialog(this)
+                            .setTitleText(getString(R.string.dialog_title_launch_failed))
+                            .setMessage(getString(R.string.dialog_message_launch_failed, e.getMessage()))
+                            .setPositiveButton(getString(R.string.dialog_positive_ok), null)
+                            .show();
+                });
+            }
+        }).start();
     }
 
     private void setCurrentFragmentIndex(int index) {

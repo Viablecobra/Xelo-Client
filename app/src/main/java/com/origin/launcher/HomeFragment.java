@@ -52,14 +52,8 @@ import com.origin.launcher.ThemeManager;
 import com.origin.launcher.ThemeUtils;
 import android.util.Log;
 import android.widget.Toast;
-import androidx.dynamicanimation.animation.SpringAnimation;
-import androidx.dynamicanimation.animation.SpringForce;
+import com.origin.launcher.MainActivity;
 import com.origin.launcher.Launcher.MinecraftLauncher;
-import com.origin.launcher.versions.GameVersion;
-import com.origin.launcher.versions.VersionManager;
-import com.origin.launcher.databinding.ActivityMainBinding;
-import com.origin.launcher.FeatureSettings;
-import com.origin.launcher.animation.DynamicAnim;
 
 public class HomeFragment extends BaseThemedFragment {
 
@@ -69,6 +63,9 @@ public class HomeFragment extends BaseThemedFragment {
     private Button versions_button;
     private com.google.android.material.button.MaterialButton shareLogsButton;
     private MinecraftLauncher minecraftLauncher;
+    private VersionManager versionManager;
+private ActivityMainBinding binding;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -179,91 +176,7 @@ public class HomeFragment extends BaseThemedFragment {
             // Handle error gracefully
         }
     }
-    
-  private void setupManagersAndHandlers() {
-        versionManager.loadAllVersions();
-        minecraftLauncher = new MinecraftLauncher(this);
-    }
-
-   private void checkResourcepack() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        new ResourcepackHandler(
-                this, minecraftLauncher, executorService
-        ).checkIntentForResourcepack();
-    }
-
-    private void launchGame() {
-        binding.mbl2_button.setEnabled(false);
-
-        GameVersion version = versionManager != null ? versionManager.getSelectedVersion() : null;
-
-        if (version == null) {
-            binding.mbl2_button.setEnabled(true);
-            new CustomAlertDialog(this)
-                    .setTitleText(getString(R.string.dialog_title_no_version))
-                    .setMessage(getString(R.string.dialog_message_no_version))
-                    .setPositiveButton(getString(R.string.dialog_positive_ok), null)
-                    .show();
-            return;
-        }
-
-        if (!version.isInstalled && !FeatureSettings.getInstance().isVersionIsolationEnabled()) {
-            binding.mbl2_button.setEnabled(true);
-            new CustomAlertDialog(this)
-                    .setTitleText(getString(R.string.dialog_title_version_isolation))
-                    .setMessage(getString(R.string.dialog_message_version_isolation))
-                    .setPositiveButton(getString(R.string.dialog_positive_enable), v -> {
-                        FeatureSettings.getInstance().setVersionIsolationEnabled(true);
-                        launchGame();
-                    })
-                    .setNegativeButton(getString(R.string.dialog_negative_cancel), null)
-                    .show();
-            return;
-        }
-        new Thread(() -> {
-            try {
-                minecraftLauncher.launch(getIntent(), version);
-                runOnUiThread(() -> {
-                    binding.mbl2_button.setEnabled(true);
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    binding.mbl2_button.setEnabled(true);
-                    new CustomAlertDialog(this)
-                            .setTitleText(getString(R.string.dialog_title_launch_failed))
-                            .setMessage(getString(R.string.dialog_message_launch_failed, e.getMessage()))
-                            .setPositiveButton(getString(R.string.dialog_positive_ok), null)
-                            .show();
-                });
-            }
-        }).start();
-    }
   
-      private boolean animatembl2_button(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            SpringAnimation sx = new SpringAnimation(v, SpringAnimation.SCALE_X, 0.95f);
-            SpringAnimation sy = new SpringAnimation(v, SpringAnimation.SCALE_Y, 0.95f);
-            SpringForce spring = new SpringForce(0.95f)
-                    .setDampingRatio(SpringForce.DAMPING_RATIO_NO_BOUNCY)
-                    .setStiffness(SpringForce.STIFFNESS_MEDIUM);
-            sx.setSpring(spring);
-            sy.setSpring(spring);
-            sx.start();
-            sy.start();
-        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-            SpringAnimation sx = new SpringAnimation(v, SpringAnimation.SCALE_X, 1f);
-            SpringAnimation sy = new SpringAnimation(v, SpringAnimation.SCALE_Y, 1f);
-            SpringForce spring = new SpringForce(1f)
-                    .setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY)
-                    .setStiffness(SpringForce.STIFFNESS_LOW);
-            sx.setSpring(spring);
-            sy.setSpring(spring);
-            sx.start();
-            sy.start();
-        }
-        return false;
-    }
-
     @Override
     protected void onApplyTheme() {
         super.onApplyTheme();
