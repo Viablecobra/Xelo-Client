@@ -62,6 +62,7 @@ import android.view.MotionEvent;
 import android.content.Context;
 import com.origin.launcher.FeatureSettings;
 import com.origin.launcher.ResourcepackHandler;
+import com.origin.launcher.versions.GameVersion;
 
 public class HomeFragment extends BaseThemedFragment {
 
@@ -131,14 +132,15 @@ private void showVersionIsolationDialog() {
 }
 
 private void setupManagersAndHandlers() {
-    versionManager = new VersionManager(requireContext());
+    versionManager = VersionManager.getInstance(requireContext());
     versionManager.loadAllVersions();
     minecraftLauncher = new MinecraftLauncher(requireContext());
 }
 
 private void checkResourcepack() {
+    if (getActivity() == null) return;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    new ResourcepackHandler(requireContext(), minecraftLauncher, executorService)
+    new ResourcepackHandler((Activity) getActivity(), minecraftLauncher, executorService)
         .checkIntentForResourcepack();
 }
 

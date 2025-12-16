@@ -66,4 +66,21 @@
     <string name="autosprint_key_label">Sprint Key:</string>
     <string name="configure">Configure</string>
 
+<!-- ResourcepackHandler -->
+<string name="resourcepack_detected_title">Resource Pack Detected</string>
+<string name="resourcepack_detected_message">Found resource pack: %1$s. Apply it?</string>
+<string name="launch_now">Launch Now</string>
+<string name="launch_later">Launch Later</string>
+
+<!-- Previous dialog strings (if missing) -->
+<string name="dialog_title_no_version">No Version</string>
+<string name="dialog_message_no_version">Please select a version</string>
+<string name="dialog_positive_ok">OK</string>
+<string name="dialog_title_version_isolation">Version Isolation</string>
+<string name="dialog_message_version_isolation">Enable isolation?</string>
+<string name="dialog_positive_enable">Enable</string>
+<string name="dialog_negative_cancel">Cancel</string>
+<string name="dialog_title_launch_failed">Launch Failed</string>
+<string name="dialog_message_launch_failed">Error: %1$s</string>
+
 </resources>
