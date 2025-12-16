@@ -100,8 +100,16 @@ public class ModulesFragment extends BaseThemedFragment {
         if (modulesContainer != null) {
             // Initialize module items
             moduleItems = new ArrayList<>();
+        
+        moduleItems.add(new ModuleItem(
+                    "In-built Mods",
+                    "Manage Xelo in-built mods (AutoSprint, Quick Drop, etc.)",
+                    "inbuilt_mods_entry"
+            ));
+        
             moduleItems.add(new ModuleItem("No hurt cam", "allows you to toggle the in-game hurt cam", "Nohurtcam"));
             moduleItems.add(new ModuleItem("No Fog", "(Doesnt work with fullbright) allows you to toggle the in-game fog", "Nofog"));
+            moduleItems.add(new ModuleItem("Better Brightness", "allows you to see in the dark", "better_brightness"));
             moduleItems.add(new ModuleItem("Particles Disabler", "allows you to toggle the in-game particles", "particles_disabler"));
             moduleItems.add(new ModuleItem("Java Fancy Clouds", "Changes the clouds to Java Fancy Clouds", "java_clouds"));
             moduleItems.add(new ModuleItem("Java Cubemap", "improves the in-game cubemap bringing it abit lower", "java_cubemap"));
@@ -121,15 +129,6 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
             populateModules();
         }
     }
-    
-    private void addInbuiltModsEntry() {
-    ModuleItem inbuiltMods = new ModuleItem(
-            "In-built Mods",
-            "Manage Xelo in-built mods (AutoSprint, Quick Drop, etc.)",
-            "inbuilt_mods_entry"
-    );
-    moduleItems.add(inbuiltMods);
-}
     
     private void populateModules() {
         if (modulesContainer == null) return;
@@ -339,6 +338,7 @@ private View createModuleView(ModuleItem module) {
             JSONObject defaultConfig = new JSONObject();
             defaultConfig.put("Nohurtcam", false);
             defaultConfig.put("Nofog", false);
+            defaultConfig.put("better_brightness", false);
             defaultConfig.put("particles_disabler", false);
             defaultConfig.put("java_clouds", false);
             defaultConfig.put("java_cubemap", false);

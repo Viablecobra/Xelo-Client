@@ -50,6 +50,14 @@ import com.origin.launcher.HomeFragment;
 import android.widget.Button;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
@@ -58,6 +66,9 @@ public class MainActivity extends BaseThemedActivity {
     private static final String KEY_DISCLAIMER_SHOWN = "disclaimer_shown";
     private static final String KEY_THEMES_DIALOG_SHOWN = "themes_dialog_shown";
 private static final String KEY_CREDITS_SHOWN = "credits_shown";
+private static final String KEY_STORAGE_PERMS_ASKED = "storage_perms_asked";
+private static final int REQ_STORAGE_PERMS = 100;
+
     private SettingsFragment settingsFragment;
     private int currentFragmentIndex = 0;
     private LinearProgressIndicator globalProgress;
@@ -159,6 +170,58 @@ private void checkFirstLaunch() {
     boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, false);
     boolean themesDialogShown = prefs.getBoolean(KEY_THEMES_DIALOG_SHOWN, false);
     boolean creditsShown = prefs.getBoolean(KEY_CREDITS_SHOWN, false);
+    boolean storageAsked = prefs.getBoolean(KEY_STORAGE_PERMS_ASKED, false);
+
+    if (isFirstLaunch) {
+        if (!storageAsked) {
+            ensureStorageAccess(prefs);
+            return;
+        }
+        
+        showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown, creditsShown);
+        prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply();
+    } else if (!storageAsked) {
+        ensureStorageAccess(prefs);
+    } else if (!disclaimerShown) {
+        showDisclaimerDialog(prefs);
+    } else if (!creditsShown) {
+        showThanksDialog(prefs);
+    } else if (!themesDialogShown) {
+        showThemesDialog(prefs, disclaimerShown);
+    }
+}
+
+private void ensureStorageAccess(SharedPreferences prefs) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (!Environment.isExternalStorageManager()) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, REQ_STORAGE_PERMS);
+            return;
+        }
+    } else {
+        int read = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int write = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (read != PackageManager.PERMISSION_GRANTED || write != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    },
+                    REQ_STORAGE_PERMS);
+            return;
+        }
+    }
+    
+    prefs.edit().putBoolean(KEY_STORAGE_PERMS_ASKED, true).apply();
+    continueFirstLaunchFlow(prefs);
+}
+
+private void continueFirstLaunchFlow(SharedPreferences prefs) {
+    boolean isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true);
+    boolean disclaimerShown = prefs.getBoolean(KEY_DISCLAIMER_SHOWN, false);
+    boolean creditsShown = prefs.getBoolean(KEY_CREDITS_SHOWN, false);
+    boolean themesDialogShown = prefs.getBoolean(KEY_THEMES_DIALOG_SHOWN, false);
 
     if (isFirstLaunch) {
         showFirstLaunchDialog(prefs, disclaimerShown, themesDialogShown, creditsShown);
@@ -168,7 +231,7 @@ private void checkFirstLaunch() {
     } else if (!creditsShown) {
         showThanksDialog(prefs);
     } else if (!themesDialogShown) {
-        showThemesDialog(prefs, disclaimerShown);
+        showThemesDialog(prefs, true);
     }
 }
 
@@ -187,7 +250,7 @@ private void showFirstLaunchDialog(SharedPreferences prefs,
                 } else if (!creditsShown) {
                     showThanksDialog(prefs);
                 } else if (!themesDialogShown) {
-                    showThemesDialog(prefs, disclaimerShown);
+                    showThemesDialog(prefs, true);
                 }
             })
             .setCancelable(false)
@@ -388,12 +451,31 @@ private void showThemesDialog(SharedPreferences prefs, boolean disclaimerShown) 
         
         Log.d(TAG, "MainActivity onActivityResult: requestCode=" + requestCode + 
               ", resultCode=" + resultCode + ", data=" + (data != null ? "present" : "null"));
+              
+        if (requestCode == REQ_STORAGE_PERMS) {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_STORAGE_PERMS_ASKED, true).apply();
+        continueFirstLaunchFlow(prefs);
+        return;
+    }
         
         if (requestCode == DiscordLoginActivity.DISCORD_LOGIN_REQUEST_CODE && settingsFragment != null) {
             Log.d(TAG, "Forwarding Discord login result to SettingsFragment");
             settingsFragment.onActivityResult(requestCode, resultCode, data);
         }
     }
+    
+    @Override
+public void onRequestPermissionsResult(int requestCode,
+                                       @NonNull String[] permissions,
+                                       @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode == REQ_STORAGE_PERMS) {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_STORAGE_PERMS_ASKED, true).apply();
+        continueFirstLaunchFlow(prefs);
+    }
+}
 
     @Override
     protected void onResume() {

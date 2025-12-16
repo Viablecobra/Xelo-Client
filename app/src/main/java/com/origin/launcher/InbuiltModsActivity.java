@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.origin.launcher.R;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
-import com.origin.launcher.adapter.InbuiltModsAdapter;
+import com.origin.launcher.adapter.AddedInbuiltModsAdapter;
 import com.origin.launcher.animation.DynamicAnim;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 public class InbuiltModsActivity extends BaseThemedActivity {
 
     private RecyclerView recyclerView;
-    private InbuiltModsAdapter adapter;
+    private AddedInbuiltModsAdapter adapter;
     private InbuiltModManager modManager;
     private TextView emptyText;
 
@@ -49,17 +49,19 @@ public class InbuiltModsActivity extends BaseThemedActivity {
 
         emptyText = findViewById(R.id.empty_inbuilt_text);
 
-        adapter = new InbuiltModsAdapter();
-        adapter.setOnAddClickListener(mod -> {
-            modManager.addMod(mod.getId());
-            Toast.makeText(this, getString(R.string.inbuilt_mod_added, mod.getName()), Toast.LENGTH_SHORT).show();
+        adapter = new AddedInbuiltModsAdapter();
+        adapter.setOnRemoveClickListener(mod -> {
+            modManager.removeMod(mod.getId());
+            Toast.makeText(this,
+                    getString(R.string.inbuilt_mod_removed, mod.getName()),
+                    Toast.LENGTH_SHORT).show();
             loadMods();
         });
         recyclerView.setAdapter(adapter);
     }
 
     private void loadMods() {
-        List<InbuiltMod> mods = modManager.getAvailableMods(this);
+        List<InbuiltMod> mods = modManager.getAddedMods(this);
         adapter.updateMods(mods);
         emptyText.setVisibility(mods.isEmpty() ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(mods.isEmpty() ? View.GONE : View.VISIBLE);
