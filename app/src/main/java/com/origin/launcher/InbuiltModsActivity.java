@@ -40,31 +40,52 @@ public class InbuiltModsActivity extends BaseThemedActivity {
     }
 
     private void setupViews() {
-        ImageButton closeButton = findViewById(R.id.close_inbuilt_button);
-        closeButton.setOnClickListener(v -> finish());
-        DynamicAnim.applyPressScale(closeButton);
+    ImageButton closeButton = findViewById(R.id.close_inbuilt_button);
+    closeButton.setOnClickListener(v -> finish());
+    DynamicAnim.applyPressScale(closeButton);
 
-        recyclerView = findViewById(R.id.inbuilt_mods_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    recyclerView = findViewById(R.id.inbuilt_mods_recycler);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        emptyText = findViewById(R.id.empty_inbuilt_text);
+    emptyText = findViewById(R.id.empty_inbuilt_text);
 
-        adapter = new AddedInbuiltModsAdapter();
-        adapter.setOnRemoveClickListener(mod -> {
+    adapter = new InbuiltModsAdapter();
+    adapter.setOnToggleClickListener((mod, enable) -> {
+        if (enable) {
+            modManager.addMod(mod.getId());
+            Toast.makeText(this,
+                    getString(R.string.inbuilt_mod_added, mod.getName()),
+                    Toast.LENGTH_SHORT).show();
+        } else {
             modManager.removeMod(mod.getId());
             Toast.makeText(this,
                     getString(R.string.inbuilt_mod_removed, mod.getName()),
                     Toast.LENGTH_SHORT).show();
-            loadMods();
-        });
-        recyclerView.setAdapter(adapter);
-    }
+        }
+        loadMods();
+    });
+    recyclerView.setAdapter(adapter);
+}
 
     private void loadMods() {
-        List<InbuiltMod> mods = modManager.getAddedMods(this);
-        adapter.updateMods(mods);
-        emptyText.setVisibility(mods.isEmpty() ? View.VISIBLE : View.GONE);
-        recyclerView.setVisibility(mods.isEmpty() ? View.GONE : View.VISIBLE);
-        recyclerView.post(() -> DynamicAnim.staggerRecyclerChildren(recyclerView));
+    List<InbuiltMod> allMods = modManager.getAllMods(this);
+    List<InbuiltMod> displayMods = new ArrayList<>();
+    
+    for (InbuiltMod mod : allMods) {
+        boolean isAdded = modManager.isModAdded(mod.getId());
+        InbuiltMod displayMod = new InbuiltMod(
+            mod.getId(),
+            mod.getName(),
+            mod.getDescription(),
+            mod.requiresOptions(),
+            isAdded
+        );
+        displayMods.add(displayMod);
     }
+    
+    adapter.updateMods(displayMods);
+    emptyText.setVisibility(displayMods.isEmpty() ? View.VISIBLE : View.GONE);
+    recyclerView.setVisibility(displayMods.isEmpty() ? View.GONE : View.VISIBLE);
+    recyclerView.post(() -> DynamicAnim.staggerRecyclerChildren(recyclerView));
+}
 }

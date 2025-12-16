@@ -307,6 +307,11 @@ private void showThanksDialog(SharedPreferences prefs) {
 
     
     recycler.scrollToPosition(0);
+    new Handler().post(() -> {
+    snapHelper.attachToRecyclerView(null);
+    snapHelper.attachToRecyclerView(recycler);
+    recycler.scrollToPosition(0);
+});
 
     
     recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {

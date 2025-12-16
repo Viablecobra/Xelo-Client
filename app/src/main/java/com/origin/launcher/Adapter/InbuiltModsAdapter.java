@@ -1,6 +1,7 @@
-package com.origin.launcher.adapter;
+package com.origin.launcher.Adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.origin.launcher.R;
@@ -27,14 +29,14 @@ import java.util.List;
 public class InbuiltModsAdapter extends RecyclerView.Adapter<InbuiltModsAdapter.ViewHolder> {
 
     private List<InbuiltMod> mods = new ArrayList<>();
-    private OnAddClickListener onAddClickListener;
+    private OnToggleClickListener onToggleClickListener;
 
-    public interface OnAddClickListener {
-        void onAddClick(InbuiltMod mod);
+    public interface OnToggleClickListener {
+        void onToggleClick(InbuiltMod mod, boolean enable);
     }
 
-    public void setOnAddClickListener(OnAddClickListener listener) {
-        this.onAddClickListener = listener;
+    public void setOnToggleClickListener(OnToggleClickListener listener) {
+        this.onToggleClickListener = listener;
     }
 
     public void updateMods(List<InbuiltMod> mods) {
@@ -53,15 +55,31 @@ public class InbuiltModsAdapter extends RecyclerView.Adapter<InbuiltModsAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         InbuiltMod mod = mods.get(position);
         Context context = holder.itemView.getContext();
+        
         holder.name.setText(mod.getName());
         holder.description.setText(mod.getDescription());
 
-        if (mod.getId().equals(ModIds.AUTO_SPRINT)) {
+        if (mod.isAdded()) {
+            holder.addButton.setText("REMOVE");
+            holder.addButton.setBackgroundTintList(
+                ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.holo_red_light))
+            );
+        } else {
+            holder.addButton.setText("ADD");
+            holder.addButton.setBackgroundTintList(
+                ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.holo_green_light))
+            );
+        }
+
+        if (mod.getId().equals(ModIds.AUTO_SPRINT) && mod.isAdded()) {
             holder.configContainer.setVisibility(View.VISIBLE);
-            String[] options = {context.getString(R.string.autosprint_key_ctrl), context.getString(R.string.autosprint_key_shift)};
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item_inbuilt, options);
-            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item_inbuilt);
-            holder.configSpinner.setAdapter(adapter);
+            String[] options = {
+                context.getString(R.string.autosprint_key_ctrl), 
+                context.getString(R.string.autosprint_key_shift)
+            };
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(context, R.layout.spinner_item_inbuilt, options);
+            spinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_inbuilt);
+            holder.configSpinner.setAdapter(spinnerAdapter);
 
             InbuiltModManager manager = InbuiltModManager.getInstance(context);
             int currentKey = manager.getAutoSprintKey();
@@ -81,8 +99,8 @@ public class InbuiltModsAdapter extends RecyclerView.Adapter<InbuiltModsAdapter.
         }
 
         holder.addButton.setOnClickListener(v -> {
-            if (onAddClickListener != null) {
-                onAddClickListener.onAddClick(mod);
+            if (onToggleClickListener != null) {
+                onToggleClickListener.onToggleClick(mod, !mod.isAdded());
             }
         });
         DynamicAnim.applyPressScale(holder.addButton);
