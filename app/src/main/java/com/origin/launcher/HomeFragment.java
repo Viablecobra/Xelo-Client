@@ -63,6 +63,7 @@ import android.content.Context;
 import com.origin.launcher.FeatureSettings;
 import com.origin.launcher.ResourcepackHandler;
 import com.origin.launcher.versions.GameVersion;
+import android.app.Activity;
 
 public class HomeFragment extends BaseThemedFragment {
 
@@ -132,7 +133,7 @@ private void showVersionIsolationDialog() {
 }
 
 private void setupManagersAndHandlers() {
-    versionManager = VersionManager.getInstance(requireContext());
+    versionManager = new VersionManager();
     versionManager.loadAllVersions();
     minecraftLauncher = new MinecraftLauncher(requireContext());
 }
