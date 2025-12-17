@@ -14,6 +14,7 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.model.InbuiltMod;
 import com.origin.launcher.Adapter.InbuiltModsAdapter;
 import com.origin.launcher.animation.DynamicAnim;
+import android.content.Intent;
 
 import java.util.List;
 
