@@ -58,6 +58,7 @@ import android.provider.Settings;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public class MainActivity extends BaseThemedActivity {
     private static final String TAG = "MainActivity";
@@ -81,6 +82,7 @@ private static final int REQ_STORAGE_PERMS = 100;
 
 
         checkFirstLaunch();
+        InbuiltModSizeStore.getInstance().init(getApplicationContext());
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         
