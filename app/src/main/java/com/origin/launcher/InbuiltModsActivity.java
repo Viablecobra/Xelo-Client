@@ -43,6 +43,11 @@ public class InbuiltModsActivity extends BaseThemedActivity {
         ImageButton closeButton = findViewById(R.id.close_inbuilt_button);
         closeButton.setOnClickListener(v -> finish());
         DynamicAnim.applyPressScale(closeButton);
+        ImageButton customiseButton = findViewById(R.id.customise_inbuilt_mod_button);
+customiseButton.setOnClickListener(v ->
+        startActivity(new Intent(this, InbuiltModsCustomizeActivity.class))
+);
+DynamicAnim.applyPressScale(customiseButton);
 
         recyclerView = findViewById(R.id.inbuilt_mods_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
