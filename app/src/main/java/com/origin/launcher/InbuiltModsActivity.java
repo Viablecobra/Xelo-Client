@@ -68,7 +68,7 @@ public class InbuiltModsActivity extends BaseThemedActivity {
     }
 
     private void loadMods() {
-        List<InbuiltMod> mods = modManager.getAvailableMods(this);
+        List<InbuiltMod> mods = modManager.getAllMods(this);
         adapter.updateMods(mods);
         emptyText.setVisibility(mods.isEmpty() ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(mods.isEmpty() ? View.GONE : View.VISIBLE);

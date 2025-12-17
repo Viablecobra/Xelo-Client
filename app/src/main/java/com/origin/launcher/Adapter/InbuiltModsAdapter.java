@@ -62,8 +62,8 @@ public class InbuiltModsAdapter extends RecyclerView.Adapter<InbuiltModsAdapter.
         InbuiltMod mod = mods.get(position);
         Context context = holder.itemView.getContext();
 
-        holder.name.setText(mod.getName());
-        holder.description.setText(mod.getDescription());
+        holder.name.setText("POS " + position + " " + mod.getId());
+holder.description.setText("NAME " + mod.getName());
 
         boolean isAdded = modManager.isModAdded(mod.getId());
 
