@@ -58,8 +58,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/rounded_card_background"
             android:orientation="vertical"
@@ -68,7 +67,7 @@
             <TextView
                 android:id="@+id/empty_inbuilt_text"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/no_inbuilt_mods_available"
                 android:textColor="@color/onSurface"
@@ -80,7 +79,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/inbuilt_mods_recycler"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="260dp"
                 android:clipToPadding="false"
                 android:padding="8dp" />
 

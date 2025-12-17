@@ -23,7 +23,7 @@
                 android:id="@+id/inbuilt_mod_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/onSurface"
+                android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/mojangles" />
@@ -32,7 +32,7 @@
                 android:id="@+id/inbuilt_mod_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/onSurface"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 android:fontFamily="@font/mojangles"
                 android:alpha="0.7"
