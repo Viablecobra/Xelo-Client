@@ -43,7 +43,7 @@
 
     <!-- Inbuilt Mods -->
     <string name="inbuilt_mods">Inbuilt Mods</string>
-    <string name="inbuilt_mods_title">🔧 Inbuilt Mods</string>
+    <string name="inbuilt_mods_title">Inbuilt Mods</string>
     <string name="inbuilt_mods_subtitle">Internal mods that run without native libraries</string>
     <string name="no_inbuilt_mods_available">All inbuilt mods have been added</string>
     <string name="inbuilt_mod_added">%s added to mods</string>

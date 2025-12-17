@@ -52,6 +52,8 @@ public abstract class BaseOverlayButton {
             ImageButton btn = (ImageButton) overlayView;
             btn.setImageResource(getIconResource());
 
+onOverlayViewCreated(btn);
+
             wmParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -84,6 +86,8 @@ public abstract class BaseOverlayButton {
         overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
         ImageButton btn = (ImageButton) overlayView;
         btn.setImageResource(getIconResource());
+        
+        onOverlayViewCreated(btn);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -202,6 +206,9 @@ public abstract class BaseOverlayButton {
         }
         return false;
     }
+    
+    protected void onOverlayViewCreated(ImageButton btn) {
+}
 
     protected void sendKey(int keyCode) {
         handler.post(() -> {

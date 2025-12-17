@@ -18,12 +18,15 @@ import android.content.Intent;
 
 import java.util.List;
 
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
+
 public class InbuiltModsActivity extends BaseThemedActivity {
 
     private RecyclerView recyclerView;
     private InbuiltModsAdapter adapter;
     private InbuiltModManager modManager;
     private TextView emptyText;
+    private static final int REQ_CUSTOMIZE_INBUILT = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +48,10 @@ public class InbuiltModsActivity extends BaseThemedActivity {
         closeButton.setOnClickListener(v -> finish());
         DynamicAnim.applyPressScale(closeButton);
         ImageButton customiseButton = findViewById(R.id.customise_inbuilt_mod_button);
-customiseButton.setOnClickListener(v ->
-        startActivity(new Intent(this, InbuiltModsCustomizeActivity.class))
-);
+customiseButton.setOnClickListener(v -> {
+    Intent intent = new Intent(this, InbuiltModsCustomizeActivity.class);
+    startActivityForResult(intent, REQ_CUSTOMIZE_INBUILT);
+});
 DynamicAnim.applyPressScale(customiseButton);
 
         recyclerView = findViewById(R.id.inbuilt_mods_recycler);
@@ -80,4 +84,18 @@ DynamicAnim.applyPressScale(customiseButton);
         recyclerView.setVisibility(mods.isEmpty() ? View.GONE : View.VISIBLE);
         recyclerView.post(() -> DynamicAnim.staggerRecyclerChildren(recyclerView));
     }
+    
+    @Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode != REQ_CUSTOMIZE_INBUILT || resultCode != RESULT_OK || data == null) {
+        return;
+    }
+
+    List<InbuiltMod> mods = modManager.getAllMods(this);
+    for (InbuiltMod mod : mods) {
+        float scale = data.getFloatExtra("scale_" + mod.getId(), 1.0f);
+        InbuiltModSizeStore.getInstance().setScale(mod.getId(), scale);
+    }
+}
 }

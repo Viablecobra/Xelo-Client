@@ -4,19 +4,28 @@ import android.app.Activity;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public class AutoSprintOverlay extends BaseOverlayButton {
+    private static final String MOD_ID = "auto_sprint";
     private boolean isActive = false;
     private int sprintKey;
 
     public AutoSprintOverlay(Activity activity, int sprintKey) {
-        super(activity);
-        this.sprintKey = sprintKey;
-    }
+    super(activity);
+    this.sprintKey = sprintKey;
+}
 
     @Override
     protected int getIconResource() {
         return R.drawable.ic_sprint;
+    }
+    
+    @Override
+    protected void onOverlayViewCreated(ImageButton btn) {
+        float scale = InbuiltModSizeStore.getInstance().getScale(MOD_ID);
+        btn.setScaleX(scale);
+        btn.setScaleY(scale);
     }
 
     @Override
