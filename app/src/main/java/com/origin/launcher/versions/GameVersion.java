@@ -72,7 +72,7 @@ public class GameVersion implements Parcelable {
         return 0;
     }
 
-    public static final Creator<GameVersion> CREATOR = new Creator<GameVersion>() {
+    public static final Creator<GameVersion> CREATOR = new Creator<>() {
         @Override
         public GameVersion createFromParcel(Parcel in) {
             return new GameVersion(in);

@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import android.graphics.Typeface;
 import android.view.Gravity;
+import android.content.Intent;
+
+import com.origin.launcher.InbuiltModsActivity;
 
 public class ModulesFragment extends BaseThemedFragment {
     
@@ -97,8 +100,16 @@ public class ModulesFragment extends BaseThemedFragment {
         if (modulesContainer != null) {
             // Initialize module items
             moduleItems = new ArrayList<>();
+        
+        moduleItems.add(new ModuleItem(
+                    "In-built Mods",
+                    "Manage Xelo in-built mods (AutoSprint, Quick Drop, etc.)",
+                    "inbuilt_mods_entry"
+            ));
+        
             moduleItems.add(new ModuleItem("No hurt cam", "allows you to toggle the in-game hurt cam", "Nohurtcam"));
             moduleItems.add(new ModuleItem("No Fog", "(Doesnt work with fullbright) allows you to toggle the in-game fog", "Nofog"));
+            moduleItems.add(new ModuleItem("Better Brightness", "allows you to see in the dark", "better_brightness"));
             moduleItems.add(new ModuleItem("Particles Disabler", "allows you to toggle the in-game particles", "particles_disabler"));
             moduleItems.add(new ModuleItem("Java Fancy Clouds", "Changes the clouds to Java Fancy Clouds", "java_clouds"));
             moduleItems.add(new ModuleItem("Java Cubemap", "improves the in-game cubemap bringing it abit lower", "java_cubemap"));
@@ -143,106 +154,129 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
         }
     }
     
-    private View createModuleView(ModuleItem module) {
-        // Create card layout (EXACTLY matching ThemesFragment pattern)
-        MaterialCardView moduleCard = new MaterialCardView(requireContext());
-        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 
+private View createModuleView(ModuleItem module) {
+    // Create card layout (EXACTLY matching ThemesFragment pattern)
+    MaterialCardView moduleCard = new MaterialCardView(requireContext());
+    LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        moduleCard.setLayoutParams(cardParams);
-        moduleCard.setRadius(12 * getResources().getDisplayMetrics().density);
-        moduleCard.setCardElevation(0); // Remove elevation for flat design
-        moduleCard.setClickable(true);
-        moduleCard.setFocusable(true);
-        
-        // Apply theme colors to card (exactly like ThemesFragment)
-        ThemeUtils.applyThemeToCard(moduleCard, requireContext());
-        moduleCard.setStrokeWidth((int) (1 * getResources().getDisplayMetrics().density));
-        
-        // Main container (EXACTLY matching ThemesFragment)
-        LinearLayout mainLayout = new LinearLayout(requireContext());
-        mainLayout.setOrientation(LinearLayout.HORIZONTAL);
-        mainLayout.setPadding(
+    );
+    moduleCard.setLayoutParams(cardParams);
+    moduleCard.setRadius(12 * getResources().getDisplayMetrics().density);
+    moduleCard.setCardElevation(0); // Remove elevation for flat design
+    moduleCard.setClickable(true);
+    moduleCard.setFocusable(true);
+
+    // Apply theme colors to card (exactly like ThemesFragment)
+    ThemeUtils.applyThemeToCard(moduleCard, requireContext());
+    moduleCard.setStrokeWidth((int) (1 * getResources().getDisplayMetrics().density));
+
+    // Main container (EXACTLY matching ThemesFragment)
+    LinearLayout mainLayout = new LinearLayout(requireContext());
+    mainLayout.setOrientation(LinearLayout.HORIZONTAL);
+    mainLayout.setPadding(
             (int) (16 * getResources().getDisplayMetrics().density),
             (int) (16 * getResources().getDisplayMetrics().density),
             (int) (16 * getResources().getDisplayMetrics().density),
             (int) (16 * getResources().getDisplayMetrics().density)
-        );
-        mainLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        
-        // Text container (EXACTLY matching ThemesFragment - text comes first)
-        LinearLayout textLayout = new LinearLayout(requireContext());
-        textLayout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
-            0, 
-            LinearLayout.LayoutParams.WRAP_CONTENT, 
+    );
+    mainLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+    // Text container (EXACTLY matching ThemesFragment - text comes first)
+    LinearLayout textLayout = new LinearLayout(requireContext());
+    textLayout.setOrientation(LinearLayout.VERTICAL);
+    LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+            0,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
-        );
-        textLayout.setLayoutParams(textParams);
-        
-        // Module name (EXACTLY matching ThemesFragment pattern)
-        TextView moduleNameText = new TextView(requireContext());
-        moduleNameText.setText(module.getName());
-        moduleNameText.setTextSize(16);
-        moduleNameText.setTypeface(null, android.graphics.Typeface.BOLD);
-        ThemeUtils.applyThemeToTextView(moduleNameText, "onSurface");
-        
-        // Module description (EXACTLY matching ThemesFragment pattern)
-        TextView moduleDescriptionText = new TextView(requireContext());
-        moduleDescriptionText.setText(module.getDescription());
-        moduleDescriptionText.setTextSize(14);
-        ThemeUtils.applyThemeToTextView(moduleDescriptionText, "onSurfaceVariant");
-        LinearLayout.LayoutParams descParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, 
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        descParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-        moduleDescriptionText.setLayoutParams(descParams);
-        
-        textLayout.addView(moduleNameText);
-        textLayout.addView(moduleDescriptionText);
-        
-        // Right side container for switch (EXACTLY matching ThemesFragment pattern)
-        LinearLayout rightContainer = new LinearLayout(requireContext());
-        rightContainer.setOrientation(LinearLayout.HORIZONTAL);
-        rightContainer.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams rightParams = new LinearLayout.LayoutParams(
+    );
+    textLayout.setLayoutParams(textParams);
+
+    // Module name (EXACTLY matching ThemesFragment pattern)
+    TextView moduleNameText = new TextView(requireContext());
+    moduleNameText.setText(module.getName());
+    moduleNameText.setTextSize(16);
+    moduleNameText.setTypeface(null, android.graphics.Typeface.BOLD);
+    ThemeUtils.applyThemeToTextView(moduleNameText, "onSurface");
+
+    // Module description (EXACTLY matching ThemesFragment pattern)
+    TextView moduleDescriptionText = new TextView(requireContext());
+    moduleDescriptionText.setText(module.getDescription());
+    moduleDescriptionText.setTextSize(14);
+    ThemeUtils.applyThemeToTextView(moduleDescriptionText, "onSurfaceVariant");
+    LinearLayout.LayoutParams descParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        rightParams.setMarginStart((int) (16 * getResources().getDisplayMetrics().density));
-        rightContainer.setLayoutParams(rightParams);
-        
+    );
+    descParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+    moduleDescriptionText.setLayoutParams(descParams);
+
+    textLayout.addView(moduleNameText);
+    textLayout.addView(moduleDescriptionText);
+
+    // Right side container for switch / open text
+    LinearLayout rightContainer = new LinearLayout(requireContext());
+    rightContainer.setOrientation(LinearLayout.HORIZONTAL);
+    rightContainer.setGravity(android.view.Gravity.CENTER_VERTICAL);
+    LinearLayout.LayoutParams rightParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+    );
+    rightParams.setMarginStart((int) (16 * getResources().getDisplayMetrics().density));
+    rightContainer.setLayoutParams(rightParams);
+
+    if ("inbuilt_mods_entry".equals(module.getConfigKey())) {
+        // This card opens the Inbuilt Mods screen
+        TextView openText = new TextView(requireContext());
+        openText.setText("Open");
+        openText.setTextSize(14);
+        openText.setTypeface(null, android.graphics.Typeface.BOLD);
+        ThemeUtils.applyThemeToTextView(openText, "primary");
+        rightContainer.addView(openText);
+
+        moduleCard.setOnClickListener(v -> {
+            try {
+                startActivity(new android.content.Intent(
+                        requireContext(),
+                        com.origin.launcher.InbuiltModsActivity.class
+                ));
+            } catch (Exception e) {
+                Toast.makeText(requireContext(),
+                        "Failed to open in-built mods: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    } else {
         // Module switch - PRESERVING CONFIG FUNCTIONALITY
         MaterialSwitch moduleSwitch = new MaterialSwitch(requireContext());
         LinearLayout.LayoutParams switchParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
         moduleSwitch.setLayoutParams(switchParams);
         moduleSwitch.setChecked(module.isEnabled());
         moduleSwitch.setClickable(true);
         moduleSwitch.setFocusable(true);
-        
+
         // Apply theme to the switch - PRESERVING CONFIG FUNCTIONALITY
         ThemeUtils.applyThemeToSwitch(moduleSwitch, requireContext());
-        
+
         // PRESERVE the config editing functionality
         moduleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             module.setEnabled(isChecked);
             onModuleToggle(module, isChecked);
         });
-        
+
         rightContainer.addView(moduleSwitch);
-        
-        mainLayout.addView(textLayout);
-        mainLayout.addView(rightContainer);
-        
-        moduleCard.addView(mainLayout);
-        
-        return moduleCard;
     }
+
+    // Add both sides to main layout and to card
+    mainLayout.addView(textLayout);
+    mainLayout.addView(rightContainer);
+    moduleCard.addView(mainLayout);
+
+    return moduleCard;
+}
     
     private void onModuleToggle(ModuleItem module, boolean isEnabled) {
         updateConfigFile(module.getConfigKey(), isEnabled);
@@ -303,6 +337,7 @@ moduleItems.add(new ModuleItem("Custom CrossHair", "lets you use your own CrossH
             JSONObject defaultConfig = new JSONObject();
             defaultConfig.put("Nohurtcam", false);
             defaultConfig.put("Nofog", false);
+            defaultConfig.put("better_brightness", false);
             defaultConfig.put("particles_disabler", false);
             defaultConfig.put("java_clouds", false);
             defaultConfig.put("java_cubemap", false);
