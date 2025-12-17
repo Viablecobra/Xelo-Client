@@ -42,4 +42,4 @@ public class QuickDropOverlay extends BaseOverlayButton {
     @Override
     protected void onButtonClick() {
     }
-}}
+}
