@@ -28,6 +28,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
 
     private static final float MIN_SCALE = 0.7f;
     private static final float MAX_SCALE = 1.8f;
+    private static final float DEFAULT_SCALE = 1.0f;
 
     private int scaleToProgress(float scale) {
         return Math.round((scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE) * sizeSeekBar.getMax());
@@ -38,16 +39,20 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         t = t * t;
         return MIN_SCALE + t * (MAX_SCALE - MIN_SCALE);
     }
-    
+
+    private float clampScale(float s) {
+        return Math.max(MIN_SCALE, Math.min(s, MAX_SCALE));
+    }
+
     private int dpToPx(int dp) {
-    return Math.round(dp * getResources().getDisplayMetrics().density);
-}
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbuilt_mods_customize);
-        
+
         dragBoundsView = findViewById(R.id.customize_background);
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
@@ -55,16 +60,16 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         sliderContainer = findViewById(R.id.slider_container);
         sizeSeekBar = findViewById(R.id.size_seekbar);
         sizeSeekBar.setMax(200);
-        
+
         View root = findViewById(R.id.customize_root);
-    root.setOnTouchListener((v, event) -> {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            lastSelectedButton = null;
-            lastSelectedId = null;
-            sliderContainer.setVisibility(View.GONE);
-        }
-        return false;
-    });
+        root.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastSelectedButton = null;
+                lastSelectedId = null;
+                sliderContainer.setVisibility(View.GONE);
+            }
+            return false;
+        });
 
         addModButton(grid, R.drawable.ic_sprint, "auto_sprint");
         addModButton(grid, R.drawable.ic_quick_drop, "quick_drop");
@@ -86,7 +91,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (lastSelectedButton == null || lastSelectedId == null) return;
-                float scale = progressToScale(progress);
+                float scale = clampScale(progressToScale(progress));
                 lastSelectedButton.setScaleX(scale);
                 lastSelectedButton.setScaleY(scale);
                 modScales.put(lastSelectedId, scale);
@@ -99,86 +104,87 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     }
 
     private void addModButton(GridLayout grid, int iconResId, String id) {
-    ImageButton btn = new ImageButton(this);
-    btn.setImageResource(iconResId);
-    btn.setBackgroundResource(R.drawable.bg_overlay_button);
-    btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        ImageButton btn = new ImageButton(this);
+        btn.setImageResource(iconResId);
+        btn.setBackgroundResource(R.drawable.bg_overlay_button);
+        btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-    GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
-            GridLayout.spec(GridLayout.UNDEFINED),
-            GridLayout.spec(GridLayout.UNDEFINED)
-    );
-    int size = dpToPx(40);
-    lp.width = size;
-    lp.height = size;
-    lp.setMargins(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
-    btn.setLayoutParams(lp);
+        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                GridLayout.spec(GridLayout.UNDEFINED),
+                GridLayout.spec(GridLayout.UNDEFINED)
+        );
+        int size = dpToPx(40);
+        lp.width = size;
+        lp.height = size;
+        lp.setMargins(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
+        btn.setLayoutParams(lp);
 
-    float savedScale = InbuiltModSizeStore.getInstance().getScale(id);
-    modScales.put(id, savedScale);
-    btn.setScaleX(savedScale);
-    btn.setScaleY(savedScale);
+        float savedScale = InbuiltModSizeStore.getInstance().getScale(id);
+        if (savedScale <= 0f) savedScale = DEFAULT_SCALE;
+        savedScale = clampScale(savedScale);
+        modScales.put(id, savedScale);
+        btn.setScaleX(savedScale);
+        btn.setScaleY(savedScale);
 
-    btn.setOnClickListener(v -> {
-        lastSelectedButton = v;
-        lastSelectedId = id;
-        float scale = modScales.get(id);
-        v.setScaleX(scale);
-        v.setScaleY(scale);
-        sizeSeekBar.setProgress(scaleToProgress(scale));
-        sliderContainer.setVisibility(View.VISIBLE);
-    });
+        btn.setOnClickListener(v -> {
+            lastSelectedButton = v;
+            lastSelectedId = id;
+            float scale = modScales.get(id);
+            v.setScaleX(scale);
+            v.setScaleY(scale);
+            sizeSeekBar.setProgress(scaleToProgress(scale));
+            sliderContainer.setVisibility(View.VISIBLE);
+        });
 
-    btn.setOnTouchListener(new View.OnTouchListener() {
-    float dX, dY;
+        btn.setOnTouchListener(new View.OnTouchListener() {
+            float dX, dY;
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                dX = view.getX() - event.getRawX();
-                dY = view.getY() - event.getRawY();
-                break;
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = view.getX() - event.getRawX();
+                        dY = view.getY() - event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() + dX;
+                        float newY = event.getRawY() + dY;
 
-            case MotionEvent.ACTION_MOVE:
-                float newX = event.getRawX() + dX;
-                float newY = event.getRawY() + dY;
+                        int[] loc = new int[2];
+                        dragBoundsView.getLocationOnScreen(loc);
+                        float left = loc[0];
+                        float top = loc[1];
+                        float right = left + dragBoundsView.getWidth() - view.getWidth();
+                        float bottom = top + dragBoundsView.getHeight() - view.getHeight();
 
-                int[] loc = new int[2];
-                dragBoundsView.getLocationOnScreen(loc);
-                float left = loc[0];
-                float top = loc[1];
-                float right = left + dragBoundsView.getWidth() - view.getWidth();
-                float bottom = top + dragBoundsView.getHeight() - view.getHeight();
+                        newX = Math.max(left, Math.min(newX, right));
+                        newY = Math.max(top, Math.min(newY, bottom));
 
-                // clamp to (almost) full screen
-                newX = Math.max(left, Math.min(newX, right));
-                newY = Math.max(top, Math.min(newY, bottom));
+                        view.setX(newX);
+                        view.setY(newY);
+                        break;
+                }
+                return false;
+            }
+        });
 
-                view.setX(newX);
-                view.setY(newY);
-                break;
-        }
-        return false;
+        grid.addView(btn);
     }
-});
-
-    grid.addView(btn);
-}
 
     private void resetSizes(GridLayout grid) {
+        float defaultScale = clampScale(DEFAULT_SCALE);
         for (int i = 0; i < grid.getChildCount(); i++) {
             View c = grid.getChildAt(i);
-            c.setScaleX(MIN_SCALE);
-            c.setScaleY(MIN_SCALE);
+            c.setScaleX(defaultScale);
+            c.setScaleY(defaultScale);
         }
         for (String key : modScales.keySet()) {
-            modScales.put(key, MIN_SCALE);
-            InbuiltModSizeStore.getInstance().setScale(key, MIN_SCALE);
+            modScales.put(key, defaultScale);
+            InbuiltModSizeStore.getInstance().setScale(key, defaultScale);
         }
         lastSelectedButton = null;
         lastSelectedId = null;
         sliderContainer.setVisibility(View.GONE);
-        sizeSeekBar.setProgress(scaleToProgress(MIN_SCALE));
+        sizeSeekBar.setProgress(scaleToProgress(defaultScale));
     }
 }

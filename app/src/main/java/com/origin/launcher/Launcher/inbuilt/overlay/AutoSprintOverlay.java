@@ -10,6 +10,12 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     private static final String MOD_ID = "auto_sprint";
     private boolean isActive = false;
     private int sprintKey;
+    private static final float MIN_SCALE = 0.7f;
+private static final float MAX_SCALE = 1.8f;
+private static final float DEFAULT_SCALE = 1.0f;
+private float clampScale(float s) {
+    return Math.max(MIN_SCALE, Math.min(s, MAX_SCALE));
+}
 
     public AutoSprintOverlay(Activity activity, int sprintKey) {
     super(activity);
@@ -24,6 +30,8 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
         float scale = InbuiltModSizeStore.getInstance().getScale(MOD_ID);
+        if (scale <= 0f) scale = DEFAULT_SCALE;
+    scale = clampScale(scale);
         btn.setScaleX(scale);
         btn.setScaleY(scale);
     }
