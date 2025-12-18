@@ -1,14 +1,14 @@
 package com.origin.launcher;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.SeekBar;
-import android.content.Intent;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
 
@@ -56,7 +56,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         dragBoundsView = findViewById(R.id.customize_root);
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
-        GridLayout grid = findViewById(R.id.inbuilt_buttons_grid);
+        FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         sliderContainer = findViewById(R.id.slider_container);
         sizeSeekBar = findViewById(R.id.size_seekbar);
         sizeSeekBar.setMax(200);
@@ -117,20 +117,16 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         });
     }
 
-    private void addModButton(GridLayout grid, int iconResId, String id) {
+    private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(this);
         btn.setImageResource(iconResId);
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
-                GridLayout.spec(GridLayout.UNDEFINED),
-                GridLayout.spec(GridLayout.UNDEFINED)
-        );
         int size = dpToPx(40);
-        lp.width = size;
-        lp.height = size;
-        lp.setMargins(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+        lp.leftMargin = dpToPx(8);
+        lp.topMargin = dpToPx(8);
         btn.setLayoutParams(lp);
 
         float savedScale = InbuiltModSizeStore.getInstance().getScale(id);
@@ -158,34 +154,42 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
 
         btn.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
+            boolean moved;
 
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+                View parent = (View) view.getParent();
+
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                         view.bringToFront();
-                        view.getParent().requestLayout();
-                        dX = view.getX() - event.getRawX();
-                        dY = view.getY() - event.getRawY();
-                        break;
+                        dX = event.getRawX() - view.getX();
+                        dY = event.getRawY() - view.getY();
+                        moved = false;
+                        return true;
+
                     case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX() + dX;
-                        float newY = event.getRawY() + dY;
+                        float newX = event.getRawX() - dX;
+                        float newY = event.getRawY() - dY;
 
-                        int[] loc = new int[2];
-                        dragBoundsView.getLocationInWindow(loc);
+                        float left = 0f;
+                        float top = 0f;
+                        float right = parent.getWidth() - view.getWidth();
+                        float bottom = parent.getHeight() - view.getHeight();
 
-                        float left   = loc[0];
-                        float top    = loc[1];
-                        float right  = left + dragBoundsView.getWidth()  - view.getWidth();
-                        float bottom = top  + dragBoundsView.getHeight() - view.getHeight();
-
-                        newX = Math.max(left, Math.min(newX, right));
-                        newY = Math.max(top,  Math.min(newY, bottom));
+                        if (newX < left) newX = left;
+                        if (newX > right) newX = right;
+                        if (newY < top) newY = top;
+                        if (newY > bottom) newY = bottom;
 
                         view.setX(newX);
                         view.setY(newY);
-                        break;
+                        moved = true;
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        if (!moved) view.performClick();
+                        return true;
                 }
                 return false;
             }
@@ -194,7 +198,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         grid.addView(btn);
     }
 
-    private void resetSizes(GridLayout grid) {
+    private void resetSizes(FrameLayout grid) {
         float defaultScale = clampScale(DEFAULT_SCALE);
         for (int i = 0; i < grid.getChildCount(); i++) {
             View c = grid.getChildAt(i);
