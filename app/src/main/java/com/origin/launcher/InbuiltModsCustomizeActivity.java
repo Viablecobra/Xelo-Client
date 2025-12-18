@@ -27,7 +27,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     private String lastSelectedId = null;
 
     private static final float MIN_SCALE = 0.7f;
-    private static final float MAX_SCALE = 1.8f;
+    private static final float MAX_SCALE = 2.2f;
     private static final float DEFAULT_SCALE = 1.0f;
 
     private int scaleToProgress(float scale) {
@@ -75,6 +75,13 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         addModButton(grid, R.drawable.ic_quick_drop, "quick_drop");
         addModButton(grid, R.drawable.ic_hud, "toggle_hud");
         addModButton(grid, R.drawable.ic_camera, "camera_perspective");
+
+        for (Map.Entry<String, Float> e : modScales.entrySet()) {
+            float s = e.getValue();
+            if (s <= 0f) s = DEFAULT_SCALE;
+            s = clampScale(s);
+            e.setValue(s);
+        }
 
         float initialScale = clampScale(DEFAULT_SCALE);
         sizeSeekBar.setProgress(scaleToProgress(initialScale));
@@ -156,6 +163,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
+                        view.bringToFront();
+                        view.getParent().requestLayout();
                         dX = view.getX() - event.getRawX();
                         dY = view.getY() - event.getRawY();
                         break;
