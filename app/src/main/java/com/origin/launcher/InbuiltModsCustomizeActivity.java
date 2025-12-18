@@ -26,8 +26,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     private final Map<String, Float> modScales = new HashMap<>();
     private String lastSelectedId = null;
 
-    private static final float MIN_SCALE = 1.0f;
-    private static final float MAX_SCALE = 3.5f;
+    private static final float MIN_SCALE = 0.7f;
+    private static final float MAX_SCALE = 1.8f;
 
     private int scaleToProgress(float scale) {
         return Math.round((scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE) * sizeSeekBar.getMax());
@@ -48,8 +48,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbuilt_mods_customize);
         
-        dragBoundsView = findViewById(R.id.customize_root);
-
+        dragBoundsView = findViewById(R.id.customize_background);
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
         GridLayout grid = findViewById(R.id.inbuilt_buttons_grid);
@@ -106,10 +105,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
     GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
-            GridLayout.spec(GridLayout.UNDEFINED, 1f),
-            GridLayout.spec(GridLayout.UNDEFINED, 1f)
+            GridLayout.spec(GridLayout.UNDEFINED),
+            GridLayout.spec(GridLayout.UNDEFINED)
     );
-    int size = dpToPx(48);
+    int size = dpToPx(40);
     lp.width = size;
     lp.height = size;
     lp.setMargins(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));

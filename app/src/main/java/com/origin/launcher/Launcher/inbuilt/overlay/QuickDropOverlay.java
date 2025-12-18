@@ -25,22 +25,10 @@ public class QuickDropOverlay extends BaseOverlayButton {
         float scale = InbuiltModSizeStore.getInstance().getScale(MOD_ID);
         btn.setScaleX(scale);
         btn.setScaleY(scale);
-
-        btn.setOnTouchListener((v, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    sendKeyDown(KeyEvent.KEYCODE_Q);
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    sendKeyUp(KeyEvent.KEYCODE_Q);
-                    break;
-            }
-            return false;
-        });
     }
 
-    @Override
+        @Override
     protected void onButtonClick() {
+        sendKey(KeyEvent.KEYCODE_Q);
     }
 }
