@@ -53,7 +53,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbuilt_mods_customize);
 
-        dragBoundsView = findViewById(R.id.customize_background);
+        dragBoundsView = findViewById(R.id.customize_root);
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
         GridLayout grid = findViewById(R.id.inbuilt_buttons_grid);
@@ -76,7 +76,14 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         addModButton(grid, R.drawable.ic_hud, "toggle_hud");
         addModButton(grid, R.drawable.ic_camera, "camera_perspective");
 
+        float initialScale = clampScale(DEFAULT_SCALE);
+        sizeSeekBar.setProgress(scaleToProgress(initialScale));
+        sliderContainer.setVisibility(View.GONE);
+        lastSelectedButton = null;
+        lastSelectedId = null;
+
         resetButton.setOnClickListener(v -> resetSizes(grid));
+
         doneButton.setOnClickListener(v -> {
             Intent result = new Intent();
             for (Map.Entry<String, Float> e : modScales.entrySet()) {
@@ -129,9 +136,15 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         btn.setOnClickListener(v -> {
             lastSelectedButton = v;
             lastSelectedId = id;
-            float scale = modScales.get(id);
+
+            Float scaleObj = modScales.get(id);
+            float scale = (scaleObj == null || scaleObj <= 0f)
+                    ? DEFAULT_SCALE
+                    : clampScale(scaleObj);
+
             v.setScaleX(scale);
             v.setScaleY(scale);
+            modScales.put(id, scale);
             sizeSeekBar.setProgress(scaleToProgress(scale));
             sliderContainer.setVisibility(View.VISIBLE);
         });
@@ -151,14 +164,15 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                         float newY = event.getRawY() + dY;
 
                         int[] loc = new int[2];
-                        dragBoundsView.getLocationOnScreen(loc);
-                        float left = loc[0];
-                        float top = loc[1];
-                        float right = left + dragBoundsView.getWidth() - view.getWidth();
-                        float bottom = top + dragBoundsView.getHeight() - view.getHeight();
+                        dragBoundsView.getLocationInWindow(loc);
+
+                        float left   = loc[0];
+                        float top    = loc[1];
+                        float right  = left + dragBoundsView.getWidth()  - view.getWidth();
+                        float bottom = top  + dragBoundsView.getHeight() - view.getHeight();
 
                         newX = Math.max(left, Math.min(newX, right));
-                        newY = Math.max(top, Math.min(newY, bottom));
+                        newY = Math.max(top,  Math.min(newY, bottom));
 
                         view.setX(newX);
                         view.setY(newY);
@@ -180,7 +194,6 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         }
         for (String key : modScales.keySet()) {
             modScales.put(key, defaultScale);
-            InbuiltModSizeStore.getInstance().setScale(key, defaultScale);
         }
         lastSelectedButton = null;
         lastSelectedId = null;
