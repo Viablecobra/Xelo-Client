@@ -174,49 +174,46 @@ private final Map<String, View> modButtons = new HashMap<>();
     });
 
     btn.setOnTouchListener(new View.OnTouchListener() {
-        float dX, dY;
-        boolean moved;
+    float dX, dY;
+    boolean moved;
 
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            View parent = (View) view.getParent();
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                view.bringToFront();
+                dX = event.getRawX() - view.getX();
+                dY = event.getRawY() - view.getY();
+                moved = false;
+                return true;
 
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    view.bringToFront();
-                    dX = event.getRawX() - view.getX();
-                    dY = event.getRawY() - view.getY();
-                    moved = false;
-                    return true;
+            case MotionEvent.ACTION_MOVE:
+                float newX = event.getRawX() - dX;
+                float newY = event.getRawY() - dY;
 
-                case MotionEvent.ACTION_MOVE:
-    float newX = event.getRawX() - dX;
-    float newY = event.getRawY() - dY;
+                View bg = findViewById(R.id.customize_background);
+                float left = 0f;
+                float top = 0f;
+                float right = bg.getWidth() - view.getWidth();
+                float bottom = bg.getHeight() - view.getHeight();
 
-    View bg = findViewById(R.id.customize_background);
+                if (newX < left) newX = left;
+                if (newX > right) newX = right;
+                if (newY < top) newY = top;
+                if (newY > bottom) newY = bottom;
 
-    float left = 0f;
-    float top = 0f;
-    float right = bg.getWidth() - view.getWidth();
-    float bottom = bg.getHeight() - view.getHeight();
+                view.setX(newX);
+                view.setY(newY);
+                moved = true;
+                return true;
 
-    if (newX < left) newX = left;
-    if (newX > right) newX = right;
-    if (newY < top) newY = top;
-    if (newY > bottom) newY = bottom;
-
-    view.setX(newX);
-    view.setY(newY);
-    moved = true;
-    return true;
-
-                case MotionEvent.ACTION_UP:
-                    if (!moved) view.performClick();
-                    return true;
-            }
-            return false;
+            case MotionEvent.ACTION_UP:
+                if (!moved) view.performClick();
+                return true;
         }
-    });
+        return false;
+    }
+});
 
     grid.addView(btn);
 }
