@@ -14,9 +14,10 @@ public class InbuiltModSizeStore {
 
     private SharedPreferences prefs;
     private final Map<String, Float> sizes = new HashMap<>();
+    private final Map<String, Float> posX = new HashMap<>();
+    private final Map<String, Float> posY = new HashMap<>();
 
-    private InbuiltModSizeStore() {
-    }
+    private InbuiltModSizeStore() { }
 
     public static InbuiltModSizeStore getInstance() {
         if (instance == null) {
@@ -34,9 +35,25 @@ public class InbuiltModSizeStore {
         for (Map.Entry<String, ?> e : all.entrySet()) {
             Object value = e.getValue();
             if (value instanceof Float) {
-                sizes.put(e.getKey(), (Float) value);
+                String key = e.getKey();
+                float f = (Float) value;
+                if (key.startsWith("pos_x_")) {
+                    posX.put(key.substring("pos_x_".length()), f);
+                } else if (key.startsWith("pos_y_")) {
+                    posY.put(key.substring("pos_y_".length()), f);
+                } else {
+                    sizes.put(key, f);
+                }
             } else if (value instanceof Double) {
-                sizes.put(e.getKey(), ((Double) value).floatValue());
+                String key = e.getKey();
+                float f = ((Double) value).floatValue();
+                if (key.startsWith("pos_x_")) {
+                    posX.put(key.substring("pos_x_".length()), f);
+                } else if (key.startsWith("pos_y_")) {
+                    posY.put(key.substring("pos_y_".length()), f);
+                } else {
+                    sizes.put(key, f);
+                }
             }
         }
     }
@@ -57,5 +74,41 @@ public class InbuiltModSizeStore {
         if (prefs != null) {
             prefs.edit().putFloat(id, scale).apply();
         }
+    }
+
+    public void setPositionX(String id, float x) {
+        posX.put(id, x);
+        if (prefs != null) {
+            prefs.edit().putFloat("pos_x_" + id, x).apply();
+        }
+    }
+
+    public void setPositionY(String id, float y) {
+        posY.put(id, y);
+        if (prefs != null) {
+            prefs.edit().putFloat("pos_y_" + id, y).apply();
+        }
+    }
+
+    public float getPositionX(String id) {
+        Float v = posX.get(id);
+        if (v != null) return v;
+        if (prefs != null && prefs.contains("pos_x_" + id)) {
+            float stored = prefs.getFloat("pos_x_" + id, -1f);
+            posX.put(id, stored);
+            return stored;
+        }
+        return -1f;
+    }
+
+    public float getPositionY(String id) {
+        Float v = posY.get(id);
+        if (v != null) return v;
+        if (prefs != null && prefs.contains("pos_y_" + id)) {
+            float stored = prefs.getFloat("pos_y_" + id, -1f);
+            posY.put(id, stored);
+            return stored;
+        }
+        return -1f;
     }
 }
