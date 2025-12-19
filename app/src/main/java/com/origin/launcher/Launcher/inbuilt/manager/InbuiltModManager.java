@@ -17,8 +17,8 @@ public class InbuiltModManager {
     private static final String PREFS_NAME = "inbuilt_mods_prefs";
     private static final String KEY_ADDED_MODS = "added_mods";
     private static final String KEY_AUTOSPRINT_KEY = "autosprint_key";
-
-    private static final String KEY_OVERLAY_BUTTON_SIZE = "overlay_button_size";
+    private static final String KEY_OVERLAY_BUTTON_SIZE_PREFIX = "overlay_button_size_";
+    private static final String KEY_OVERLAY_BUTTON_SIZE_GLOBAL = "overlay_button_size";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 48;
 
     private static volatile InbuiltModManager instance;
@@ -43,22 +43,34 @@ public class InbuiltModManager {
 
     public List<InbuiltMod> getAllMods(Context context) {
         List<InbuiltMod> mods = new ArrayList<>();
-        mods.add(new InbuiltMod(ModIds.QUICK_DROP,
+        mods.add(new InbuiltMod(
+                ModIds.QUICK_DROP,
                 context.getString(R.string.inbuilt_mod_quick_drop),
                 context.getString(R.string.inbuilt_mod_quick_drop_desc),
-                false, addedMods.contains(ModIds.QUICK_DROP)));
-        mods.add(new InbuiltMod(ModIds.CAMERA_PERSPECTIVE,
+                false,
+                addedMods.contains(ModIds.QUICK_DROP)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.CAMERA_PERSPECTIVE,
                 context.getString(R.string.inbuilt_mod_camera),
                 context.getString(R.string.inbuilt_mod_camera_desc),
-                false, addedMods.contains(ModIds.CAMERA_PERSPECTIVE)));
-        mods.add(new InbuiltMod(ModIds.TOGGLE_HUD,
+                false,
+                addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.TOGGLE_HUD,
                 context.getString(R.string.inbuilt_mod_hud),
                 context.getString(R.string.inbuilt_mod_hud_desc),
-                false, addedMods.contains(ModIds.TOGGLE_HUD)));
-        mods.add(new InbuiltMod(ModIds.AUTO_SPRINT,
+                false,
+                addedMods.contains(ModIds.TOGGLE_HUD)
+        ));
+        mods.add(new InbuiltMod(
+                ModIds.AUTO_SPRINT,
                 context.getString(R.string.inbuilt_mod_autosprint),
                 context.getString(R.string.inbuilt_mod_autosprint_desc),
-                true, addedMods.contains(ModIds.AUTO_SPRINT)));
+                true,
+                addedMods.contains(ModIds.AUTO_SPRINT)
+        ));
         return mods;
     }
 
@@ -107,11 +119,20 @@ public class InbuiltModManager {
     }
 
     public int getOverlayButtonSize() {
-        return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE, DEFAULT_OVERLAY_BUTTON_SIZE);
+        return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE_GLOBAL, DEFAULT_OVERLAY_BUTTON_SIZE);
     }
 
     public void setOverlayButtonSize(int sizeDp) {
-        prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE, sizeDp).apply();
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_GLOBAL, sizeDp).apply();
+    }
+
+    // Per‑mod overlay size
+    public int getOverlayButtonSize(String modId) {
+        return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, DEFAULT_OVERLAY_BUTTON_SIZE);
+    }
+
+    public void setOverlayButtonSize(String modId, int sizeDp) {
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, sizeDp).apply();
     }
 
     private void savePrefs() {

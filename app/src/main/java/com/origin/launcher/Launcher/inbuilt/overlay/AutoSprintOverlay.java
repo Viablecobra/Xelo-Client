@@ -1,15 +1,13 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
-import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
-import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 
 public class AutoSprintOverlay extends BaseOverlayButton {
-    private static final String MOD_ID = "auto_sprint";
+
     private boolean isActive = false;
     private int sprintKey;
 
@@ -19,31 +17,13 @@ public class AutoSprintOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected int getIconResource() {
-        return R.drawable.ic_sprint;
+    protected String getModId() {
+        return ModIds.AUTO_SPRINT;
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {
-        btn.setBackgroundResource(R.drawable.bg_overlay_button);
-        btn.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
-
-        int sizeDp = InbuiltModSizeStore.getInstance().getSize(MOD_ID);
-        if (sizeDp <= 0) sizeDp = 40;
-        int sizePx = dpToPx(btn.getContext(), sizeDp);
-
-        ViewGroup.LayoutParams lp = btn.getLayoutParams();
-        if (lp == null) {
-            lp = new ViewGroup.LayoutParams(sizePx, sizePx);
-        } else {
-            lp.width = sizePx;
-            lp.height = sizePx;
-        }
-        btn.setLayoutParams(lp);
-    }
-
-    private int dpToPx(Context c, int dp) {
-        return Math.round(dp * c.getResources().getDisplayMetrics().density);
+    protected int getIconResource() {
+        return R.drawable.ic_sprint;
     }
 
     @Override
@@ -65,7 +45,7 @@ public class AutoSprintOverlay extends BaseOverlayButton {
                 btn.setAlpha(active ? 1.0f : 0.6f);
                 btn.setBackgroundResource(
                         active ? R.drawable.bg_overlay_button_active
-                                : R.drawable.bg_overlay_button
+                               : R.drawable.bg_overlay_button
                 );
             }
         }

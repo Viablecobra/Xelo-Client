@@ -18,18 +18,23 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 
 public abstract class BaseOverlayButton {
+
     protected final Activity activity;
     protected View overlayView;
     protected WindowManager windowManager;
     protected WindowManager.LayoutParams wmParams;
+
     private float initialX, initialY;
     private float initialTouchX, initialTouchY;
     private boolean isDragging = false;
     private long touchDownTime = 0;
+
     private static final long TAP_TIMEOUT = 200;
     private static final float DRAG_THRESHOLD = 10f;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isShowing = false;
 
@@ -38,6 +43,14 @@ public abstract class BaseOverlayButton {
         this.windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
     }
 
+    protected int getButtonSizePx() {
+        int sizeDp = InbuiltModManager.getInstance(activity).getOverlayButtonSize(getModId());
+        float density = activity.getResources().getDisplayMetrics().density;
+        return (int) (sizeDp * density);
+    }
+
+    protected abstract String getModId();
+
     public void show(int startX, int startY) {
         if (isShowing) return;
         handler.postDelayed(() -> showInternal(startX, startY), 500);
@@ -45,17 +58,19 @@ public abstract class BaseOverlayButton {
 
     private void showInternal(int startX, int startY) {
         if (isShowing || activity.isFinishing() || activity.isDestroyed()) return;
-
         try {
             overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
             ImageButton btn = (ImageButton) overlayView;
             btn.setImageResource(getIconResource());
 
-            onOverlayViewCreated(btn);
+            int buttonSize = getButtonSizePx();
+            int padding = (int) (buttonSize * 0.22f);
+            btn.setPadding(padding, padding, padding, padding);
+            btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
 
             wmParams = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    buttonSize,
+                    buttonSize,
                     WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                             | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -78,7 +93,6 @@ public abstract class BaseOverlayButton {
 
     private void showFallback(int startX, int startY) {
         if (isShowing) return;
-
         ViewGroup rootView = activity.findViewById(android.R.id.content);
         if (rootView == null) return;
 
@@ -86,11 +100,14 @@ public abstract class BaseOverlayButton {
         ImageButton btn = (ImageButton) overlayView;
         btn.setImageResource(getIconResource());
 
-        onOverlayViewCreated(btn);
+        int buttonSize = getButtonSizePx();
+        int padding = (int) (buttonSize * 0.22f);
+        btn.setPadding(padding, padding, padding, padding);
+        btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+                buttonSize,
+                buttonSize
         );
         params.gravity = Gravity.TOP | Gravity.START;
         params.leftMargin = startX;
@@ -131,7 +148,6 @@ public abstract class BaseOverlayButton {
                 touchDownTime = SystemClock.uptimeMillis();
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 return true;
-
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
@@ -144,7 +160,6 @@ public abstract class BaseOverlayButton {
                     windowManager.updateViewLayout(overlayView, wmParams);
                 }
                 return true;
-
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
                 if (!isDragging && elapsed < TAP_TIMEOUT) {
@@ -153,7 +168,6 @@ public abstract class BaseOverlayButton {
                 isDragging = false;
                 v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
-
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_OUTSIDE:
                 isDragging = false;
@@ -175,7 +189,6 @@ public abstract class BaseOverlayButton {
                 touchDownTime = SystemClock.uptimeMillis();
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 return true;
-
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getRawX() - initialTouchX;
                 float dy = event.getRawY() - initialTouchY;
@@ -188,7 +201,6 @@ public abstract class BaseOverlayButton {
                     overlayView.setLayoutParams(params);
                 }
                 return true;
-
             case MotionEvent.ACTION_UP:
                 long elapsed = SystemClock.uptimeMillis() - touchDownTime;
                 if (!isDragging && elapsed < TAP_TIMEOUT) {
@@ -197,7 +209,6 @@ public abstract class BaseOverlayButton {
                 isDragging = false;
                 v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
-
             case MotionEvent.ACTION_CANCEL:
                 isDragging = false;
                 v.getParent().requestDisallowInterceptTouchEvent(false);
@@ -205,8 +216,6 @@ public abstract class BaseOverlayButton {
         }
         return false;
     }
-
-    protected abstract void onOverlayViewCreated(ImageButton btn);
 
     protected void sendKey(int keyCode) {
         handler.post(() -> {

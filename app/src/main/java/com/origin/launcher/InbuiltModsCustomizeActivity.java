@@ -13,7 +13,9 @@ import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
 
-import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,10 +75,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             return false;
         });
 
-        addModButton(grid, R.drawable.ic_sprint, "auto_sprint");
-        addModButton(grid, R.drawable.ic_quick_drop, "quick_drop");
-        addModButton(grid, R.drawable.ic_hud, "toggle_hud");
-        addModButton(grid, R.drawable.ic_camera, "camera_perspective");
+        addModButton(grid, R.drawable.ic_sprint, ModIds.AUTO_SPRINT);
+        addModButton(grid, R.drawable.ic_quick_drop, ModIds.QUICK_DROP);
+        addModButton(grid, R.drawable.ic_hud, ModIds.TOGGLE_HUD);
+        addModButton(grid, R.drawable.ic_camera, ModIds.CAMERA_PERSPECTIVE);
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
             int s = e.getValue();
@@ -94,18 +96,19 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
 
         doneButton.setOnClickListener(v -> {
             Intent result = new Intent();
+            InbuiltModManager manager = InbuiltModManager.getInstance(this);
             for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
                 String id = e.getKey();
                 int sizeDp = e.getValue();
-                InbuiltModSizeStore.getInstance().setSize(id, sizeDp);
+                manager.setOverlayButtonSize(id, sizeDp);
                 result.putExtra("size_" + id, sizeDp);
 
                 View btn = modButtons.get(id);
                 if (btn != null) {
                     float x = btn.getX();
                     float y = btn.getY();
-                    InbuiltModSizeStore.getInstance().setPositionX(id, x);
-                    InbuiltModSizeStore.getInstance().setPositionY(id, y);
+                    result.putExtra("posx_" + id, x);
+                    result.putExtra("posy_" + id, y);
                 }
             }
             setResult(RESULT_OK, result);
@@ -181,7 +184,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-        int savedSizeDp = InbuiltModSizeStore.getInstance().getSize(id);
+        InbuiltModManager manager = InbuiltModManager.getInstance(this);
+        int savedSizeDp = manager.getOverlayButtonSize(id);
         if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
         savedSizeDp = clampSize(savedSizeDp);
         int sizePx = dpToPx(savedSizeDp);
@@ -193,12 +197,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
 
         modSizes.put(id, savedSizeDp);
 
-        float savedX = InbuiltModSizeStore.getInstance().getPositionX(id);
-        float savedY = InbuiltModSizeStore.getInstance().getPositionY(id);
-        if (savedX >= 0f && savedY >= 0f) {
-            btn.setX(savedX);
-            btn.setY(savedY);
-        }
+        float savedX = 0f;
+        float savedY = 0f;
+        btn.setX(savedX);
+        btn.setY(savedY);
 
         modButtons.put(id, btn);
 
@@ -233,7 +235,6 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                         dY = event.getRawY() - view.getY();
                         moved = false;
                         return true;
-
                     case MotionEvent.ACTION_MOVE:
                         float newX = event.getRawX() - dX;
                         float newY = event.getRawY() - dY;
@@ -253,7 +254,6 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                         view.setY(newY);
                         moved = true;
                         return true;
-
                     case MotionEvent.ACTION_UP:
                         if (!moved) view.performClick();
                         return true;
@@ -279,8 +279,6 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         }
         for (String key : modSizes.keySet()) {
             modSizes.put(key, defaultSizeDp);
-            InbuiltModSizeStore.getInstance().setPositionX(key, -1f);
-            InbuiltModSizeStore.getInstance().setPositionY(key, -1f);
         }
         lastSelectedButton = null;
         lastSelectedId = null;
