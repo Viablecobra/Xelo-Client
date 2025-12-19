@@ -2,7 +2,6 @@ package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,17 +51,17 @@ public abstract class BaseOverlayButton {
             ImageButton btn = (ImageButton) overlayView;
             btn.setImageResource(getIconResource());
 
-onOverlayViewCreated(btn);
+            onOverlayViewCreated(btn);
 
             wmParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                    | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                    | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
-                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    PixelFormat.TRANSLUCENT
             );
             wmParams.gravity = Gravity.TOP | Gravity.START;
             wmParams.x = startX;
@@ -86,12 +85,12 @@ onOverlayViewCreated(btn);
         overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_button, null);
         ImageButton btn = (ImageButton) overlayView;
         btn.setImageResource(getIconResource());
-        
+
         onOverlayViewCreated(btn);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
         );
         params.gravity = Gravity.TOP | Gravity.START;
         params.leftMargin = startX;
@@ -206,9 +205,8 @@ onOverlayViewCreated(btn);
         }
         return false;
     }
-    
-    protected void onOverlayViewCreated(ImageButton btn) {
-}
+
+    protected abstract void onOverlayViewCreated(ImageButton btn);
 
     protected void sendKey(int keyCode) {
         handler.post(() -> {
