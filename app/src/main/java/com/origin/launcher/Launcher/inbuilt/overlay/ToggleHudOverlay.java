@@ -10,8 +10,8 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 public class ToggleHudOverlay extends BaseOverlayButton {
     private static final String MOD_ID = "toggle_hud";
 
-    private static final float MIN_SCALE = 0.7f;
-    private static final float MAX_SCALE = 1.8f;
+    private static final float MIN_SCALE = 1.0f;
+    private static final float MAX_SCALE = 2.5f;
     private static final float DEFAULT_SCALE = 1.0f;
 
     private float clampScale(float s) {
@@ -29,6 +29,9 @@ public class ToggleHudOverlay extends BaseOverlayButton {
 
     @Override
     protected void onOverlayViewCreated(ImageButton btn) {
+        btn.setBackgroundResource(R.drawable.bg_overlay_button);
+        btn.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+
         float scale = InbuiltModSizeStore.getInstance().getScale(MOD_ID);
         if (scale <= 0f) scale = DEFAULT_SCALE;
         scale = clampScale(scale);

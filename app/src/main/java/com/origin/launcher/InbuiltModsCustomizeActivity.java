@@ -190,23 +190,25 @@ private final Map<String, View> modButtons = new HashMap<>();
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
-                    float newX = event.getRawX() - dX;
-                    float newY = event.getRawY() - dY;
+    float newX = event.getRawX() - dX;
+    float newY = event.getRawY() - dY;
 
-                    float left = 0f;
-                    float top = 0f;
-                    float right = parent.getWidth() - view.getWidth();
-                    float bottom = parent.getHeight() - view.getHeight();
+    View bg = findViewById(R.id.customize_background);
 
-                    if (newX < left) newX = left;
-                    if (newX > right) newX = right;
-                    if (newY < top) newY = top;
-                    if (newY > bottom) newY = bottom;
+    float left = 0f;
+    float top = 0f;
+    float right = bg.getWidth() - view.getWidth();
+    float bottom = bg.getHeight() - view.getHeight();
 
-                    view.setX(newX);
-                    view.setY(newY);
-                    moved = true;
-                    return true;
+    if (newX < left) newX = left;
+    if (newX > right) newX = right;
+    if (newY < top) newY = top;
+    if (newY > bottom) newY = bottom;
+
+    view.setX(newX);
+    view.setY(newY);
+    moved = true;
+    return true;
 
                 case MotionEvent.ACTION_UP:
                     if (!moved) view.performClick();
