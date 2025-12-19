@@ -1,7 +1,9 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.origin.launcher.R;
@@ -9,14 +11,6 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 
 public class QuickDropOverlay extends BaseOverlayButton {
     private static final String MOD_ID = "quick_drop";
-
-    private static final float MIN_SCALE = 1.0f;
-    private static final float MAX_SCALE = 2.5f;
-    private static final float DEFAULT_SCALE = 1.0f;
-
-    private float clampScale(float s) {
-        return Math.max(MIN_SCALE, Math.min(s, MAX_SCALE));
-    }
 
     public QuickDropOverlay(Activity activity) {
         super(activity);
@@ -32,11 +26,18 @@ public class QuickDropOverlay extends BaseOverlayButton {
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
-        float scale = InbuiltModSizeStore.getInstance().getScale(MOD_ID);
-        if (scale <= 0f) scale = DEFAULT_SCALE;
-        scale = clampScale(scale);
-        btn.setScaleX(scale);
-        btn.setScaleY(scale);
+        int sizeDp = InbuiltModSizeStore.getInstance().getSize(MOD_ID);
+        if (sizeDp <= 0) sizeDp = 40;
+        int sizePx = dpToPx(btn.getContext(), sizeDp);
+
+        ViewGroup.LayoutParams lp = btn.getLayoutParams();
+        lp.width = sizePx;
+        lp.height = sizePx;
+        btn.setLayoutParams(lp);
+    }
+
+    private int dpToPx(Context c, int dp) {
+        return Math.round(dp * c.getResources().getDisplayMetrics().density);
     }
 
     @Override

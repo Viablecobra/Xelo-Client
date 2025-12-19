@@ -13,7 +13,8 @@ public class InbuiltModSizeStore {
     private static final String PREFS = "inbuilt_mod_sizes";
 
     private SharedPreferences prefs;
-    private final Map<String, Float> sizes = new HashMap<>();
+    private final Map<String, Float> scales = new HashMap<>();
+    private final Map<String, Integer> sizes = new HashMap<>();
     private final Map<String, Float> posX = new HashMap<>();
     private final Map<String, Float> posY = new HashMap<>();
 
@@ -33,46 +34,67 @@ public class InbuiltModSizeStore {
 
         Map<String, ?> all = prefs.getAll();
         for (Map.Entry<String, ?> e : all.entrySet()) {
+            String key = e.getKey();
             Object value = e.getValue();
             if (value instanceof Float) {
-                String key = e.getKey();
                 float f = (Float) value;
                 if (key.startsWith("pos_x_")) {
                     posX.put(key.substring("pos_x_".length()), f);
                 } else if (key.startsWith("pos_y_")) {
                     posY.put(key.substring("pos_y_".length()), f);
                 } else {
-                    sizes.put(key, f);
+                    scales.put(key, f);
                 }
             } else if (value instanceof Double) {
-                String key = e.getKey();
                 float f = ((Double) value).floatValue();
                 if (key.startsWith("pos_x_")) {
                     posX.put(key.substring("pos_x_".length()), f);
                 } else if (key.startsWith("pos_y_")) {
                     posY.put(key.substring("pos_y_".length()), f);
                 } else {
-                    sizes.put(key, f);
+                    scales.put(key, f);
+                }
+            } else if (value instanceof Integer) {
+                if (key.startsWith("size_")) {
+                    sizes.put(key.substring("size_".length()), (Integer) value);
                 }
             }
         }
     }
 
     public float getScale(String id) {
-        Float v = sizes.get(id);
+        Float v = scales.get(id);
         if (v != null) return v;
         if (prefs != null) {
             float stored = prefs.getFloat(id, 1.0f);
-            sizes.put(id, stored);
+            scales.put(id, stored);
             return stored;
         }
         return 1.0f;
     }
 
     public void setScale(String id, float scale) {
-        sizes.put(id, scale);
+        scales.put(id, scale);
         if (prefs != null) {
             prefs.edit().putFloat(id, scale).apply();
+        }
+    }
+
+    public int getSize(String id) {
+        Integer v = sizes.get(id);
+        if (v != null) return v;
+        if (prefs != null && prefs.contains("size_" + id)) {
+            int stored = prefs.getInt("size_" + id, 40);
+            sizes.put(id, stored);
+            return stored;
+        }
+        return 40;
+    }
+
+    public void setSize(String id, int sizeDp) {
+        sizes.put(id, sizeDp);
+        if (prefs != null) {
+            prefs.edit().putInt("size_" + id, sizeDp).apply();
         }
     }
 

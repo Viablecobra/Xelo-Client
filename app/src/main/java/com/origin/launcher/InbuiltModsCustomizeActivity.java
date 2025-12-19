@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -23,26 +24,26 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     private View sliderContainer;
     private SeekBar sizeSeekBar;
     private View dragBoundsView;
-    private final Map<String, Float> modScales = new HashMap<>();
+    private final Map<String, Integer> modSizes = new HashMap<>();
     private final Map<String, View> modButtons = new HashMap<>();
     private String lastSelectedId = null;
 
-    private static final float MIN_SCALE = 1.0f;
-    private static final float MAX_SCALE = 2.5f;
-    private static final float DEFAULT_SCALE = 1.0f;
+    private static final int MIN_SIZE_DP = 32;
+    private static final int MAX_SIZE_DP = 96;
+    private static final int DEFAULT_SIZE_DP = 40;
 
-    private int scaleToProgress(float scale) {
-        return Math.round((scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE) * sizeSeekBar.getMax());
+    private int sizeToProgress(int sizeDp) {
+        float t = (sizeDp - MIN_SIZE_DP) / (float) (MAX_SIZE_DP - MIN_SIZE_DP);
+        return Math.round(t * sizeSeekBar.getMax());
     }
 
-    private float progressToScale(int progress) {
+    private int progressToSize(int progress) {
         float t = progress / (float) sizeSeekBar.getMax();
-        t = t * t;
-        return MIN_SCALE + t * (MAX_SCALE - MIN_SCALE);
+        return MIN_SIZE_DP + Math.round(t * (MAX_SIZE_DP - MIN_SIZE_DP));
     }
 
-    private float clampScale(float s) {
-        return Math.max(MIN_SCALE, Math.min(s, MAX_SCALE));
+    private int clampSize(int s) {
+        return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP));
     }
 
     private int dpToPx(int dp) {
@@ -50,105 +51,129 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
     }
 
     @Override
-protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_inbuilt_mods_customize);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_inbuilt_mods_customize);
 
-    dragBoundsView = findViewById(R.id.customize_root);
-    Button resetButton = findViewById(R.id.reset_button);
-    Button doneButton = findViewById(R.id.done_button);
-    FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
-    sliderContainer = findViewById(R.id.slider_container);
-    sizeSeekBar = findViewById(R.id.size_seekbar);
-    sizeSeekBar.setMax(200);
+        dragBoundsView = findViewById(R.id.customize_root);
+        Button resetButton = findViewById(R.id.reset_button);
+        Button doneButton = findViewById(R.id.done_button);
+        FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
+        sliderContainer = findViewById(R.id.slider_container);
+        sizeSeekBar = findViewById(R.id.size_seekbar);
+        sizeSeekBar.setMax(100);
 
-    View root = findViewById(R.id.customize_root);
-    root.setOnTouchListener((v, event) -> {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            lastSelectedButton = null;
-            lastSelectedId = null;
-            sliderContainer.setVisibility(View.GONE);
-        }
-        return false;
-    });
-
-    addModButton(grid, R.drawable.ic_sprint, "auto_sprint");
-    addModButton(grid, R.drawable.ic_quick_drop, "quick_drop");
-    addModButton(grid, R.drawable.ic_hud, "toggle_hud");
-    addModButton(grid, R.drawable.ic_camera, "camera_perspective");
-
-    for (Map.Entry<String, Float> e : modScales.entrySet()) {
-        float s = e.getValue();
-        if (s <= 0f) s = DEFAULT_SCALE;
-        s = clampScale(s);
-        e.setValue(s);
-    }
-
-    float initialScale = clampScale(DEFAULT_SCALE);
-    sizeSeekBar.setProgress(scaleToProgress(initialScale));
-    sliderContainer.setVisibility(View.GONE);
-    lastSelectedButton = null;
-    lastSelectedId = null;
-
-    resetButton.setOnClickListener(v -> resetSizes(grid));
-
-    doneButton.setOnClickListener(v -> {
-        Intent result = new Intent();
-        for (Map.Entry<String, Float> e : modScales.entrySet()) {
-            String id = e.getKey();
-            float scale = e.getValue();
-
-            InbuiltModSizeStore.getInstance().setScale(id, scale);
-            result.putExtra("scale_" + id, scale);
-
-            View btn = modButtons.get(id);
-            if (btn != null) {
-                float x = btn.getX();
-                float y = btn.getY();
-                InbuiltModSizeStore.getInstance().setPositionX(id, x);
-                InbuiltModSizeStore.getInstance().setPositionY(id, y);
+        View root = findViewById(R.id.customize_root);
+        root.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastSelectedButton = null;
+                lastSelectedId = null;
+                sliderContainer.setVisibility(View.GONE);
             }
+            return false;
+        });
+
+        addModButton(grid, R.drawable.ic_sprint, "auto_sprint");
+        addModButton(grid, R.drawable.ic_quick_drop, "quick_drop");
+        addModButton(grid, R.drawable.ic_hud, "toggle_hud");
+        addModButton(grid, R.drawable.ic_camera, "camera_perspective");
+
+        for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+            int s = e.getValue();
+            s = clampSize(s <= 0 ? DEFAULT_SIZE_DP : s);
+            e.setValue(s);
         }
-        setResult(RESULT_OK, result);
-        finish();
-    });
 
-    sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (lastSelectedButton == null || lastSelectedId == null) return;
-            float scale = clampScale(progressToScale(progress));
-            lastSelectedButton.setScaleX(scale);
-            lastSelectedButton.setScaleY(scale);
-            modScales.put(lastSelectedId, scale);
-        }
+        int initialSize = clampSize(DEFAULT_SIZE_DP);
+        sizeSeekBar.setProgress(sizeToProgress(initialSize));
+        sliderContainer.setVisibility(View.GONE);
+        lastSelectedButton = null;
+        lastSelectedId = null;
 
-        @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+        resetButton.setOnClickListener(v -> resetSizes(grid));
 
-        @Override public void onStopTrackingTouch(SeekBar seekBar) { }
-    });
+        doneButton.setOnClickListener(v -> {
+            Intent result = new Intent();
+            for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+                String id = e.getKey();
+                int sizeDp = e.getValue();
+                InbuiltModSizeStore.getInstance().setSize(id, sizeDp);
+                result.putExtra("size_" + id, sizeDp);
 
-    sizeSeekBar.post(() -> {
-        int h = sizeSeekBar.getHeight();
-        int padV = h / 4;
-        int padH = h / 3;
-        sizeSeekBar.setPadding(padH, padV, padH, padV);
-    });
+                View btn = modButtons.get(id);
+                if (btn != null) {
+                    float x = btn.getX();
+                    float y = btn.getY();
+                    InbuiltModSizeStore.getInstance().setPositionX(id, x);
+                    InbuiltModSizeStore.getInstance().setPositionY(id, y);
+                }
+            }
+            setResult(RESULT_OK, result);
+            finish();
+        });
 
-    resetButton.post(() -> {
-        int h = resetButton.getHeight();
-        int padV = h / 4;
-        int padH = h / 3;
-        resetButton.setPadding(padH, padV, padH, padV);
-    });
+        sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (lastSelectedButton == null || lastSelectedId == null) return;
+                int sizeDp = clampSize(progressToSize(progress));
+                int sizePx = dpToPx(sizeDp);
 
-    doneButton.post(() -> {
-        int h = doneButton.getHeight();
-        int padV = h / 4;
-        int padH = h / 3;
-        doneButton.setPadding(padH, padV, padH, padV);
-    });
-}
+                ViewGroup.LayoutParams lp = lastSelectedButton.getLayoutParams();
+                lp.width = sizePx;
+                lp.height = sizePx;
+                lastSelectedButton.setLayoutParams(lp);
+
+                modSizes.put(lastSelectedId, sizeDp);
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
+        sizeSeekBar.post(() -> {
+            int h = sizeSeekBar.getHeight();
+            int padV = h / 4;
+            int padH = h / 3;
+            sizeSeekBar.setPadding(padH, padV, padH, padV);
+
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) sizeSeekBar.getLayoutParams();
+            int marginV = h / 4;
+            int marginH = h / 4;
+            lp.setMargins(marginH, marginV, marginH, marginV);
+            sizeSeekBar.setLayoutParams(lp);
+        });
+
+        resetButton.post(() -> {
+            int h = resetButton.getHeight();
+            int padV = h / 4;
+            int padH = h / 3;
+            resetButton.setPadding(padH, padV, padH, padV);
+
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) resetButton.getLayoutParams();
+            int marginV = h / 4;
+            int marginH = h / 4;
+            lp.setMargins(marginH, marginV, marginH, marginV);
+            resetButton.setLayoutParams(lp);
+        });
+
+        doneButton.post(() -> {
+            int h = doneButton.getHeight();
+            int padV = h / 4;
+            int padH = h / 3;
+            doneButton.setPadding(padH, padV, padH, padV);
+
+            ViewGroup.MarginLayoutParams lp =
+                    (ViewGroup.MarginLayoutParams) doneButton.getLayoutParams();
+            int marginV = h / 4;
+            int marginH = h / 4;
+            lp.setMargins(marginH, marginV, marginH, marginV);
+            doneButton.setLayoutParams(lp);
+        });
+    }
 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
         ImageButton btn = new ImageButton(this);
@@ -156,18 +181,17 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
         btn.setBackgroundResource(R.drawable.bg_overlay_button);
         btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-        int size = dpToPx(40);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+        int savedSizeDp = InbuiltModSizeStore.getInstance().getSize(id);
+        if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
+        savedSizeDp = clampSize(savedSizeDp);
+        int sizePx = dpToPx(savedSizeDp);
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
         lp.leftMargin = dpToPx(8);
         lp.topMargin = dpToPx(8);
         btn.setLayoutParams(lp);
 
-        float savedScale = InbuiltModSizeStore.getInstance().getScale(id);
-        if (savedScale <= 0f) savedScale = DEFAULT_SCALE;
-        savedScale = clampScale(savedScale);
-        modScales.put(id, savedScale);
-        btn.setScaleX(savedScale);
-        btn.setScaleY(savedScale);
+        modSizes.put(id, savedSizeDp);
 
         float savedX = InbuiltModSizeStore.getInstance().getPositionX(id);
         float savedY = InbuiltModSizeStore.getInstance().getPositionY(id);
@@ -182,15 +206,17 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
             lastSelectedButton = v;
             lastSelectedId = id;
 
-            Float scaleObj = modScales.get(id);
-            float scale = (scaleObj == null || scaleObj <= 0f)
-                    ? DEFAULT_SCALE
-                    : clampScale(scaleObj);
+            Integer sizeObj = modSizes.get(id);
+            int sizeDp = sizeObj == null || sizeObj <= 0 ? DEFAULT_SIZE_DP : clampSize(sizeObj);
+            int sizePx2 = dpToPx(sizeDp);
 
-            v.setScaleX(scale);
-            v.setScaleY(scale);
-            modScales.put(id, scale);
-            sizeSeekBar.setProgress(scaleToProgress(scale));
+            ViewGroup.LayoutParams lp2 = v.getLayoutParams();
+            lp2.width = sizePx2;
+            lp2.height = sizePx2;
+            v.setLayoutParams(lp2);
+
+            modSizes.put(id, sizeDp);
+            sizeSeekBar.setProgress(sizeToProgress(sizeDp));
             sliderContainer.setVisibility(View.VISIBLE);
         });
 
@@ -240,22 +266,25 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
     }
 
     private void resetSizes(FrameLayout grid) {
-        float defaultScale = clampScale(DEFAULT_SCALE);
+        int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
+        int defaultSizePx = dpToPx(defaultSizeDp);
         for (int i = 0; i < grid.getChildCount(); i++) {
             View c = grid.getChildAt(i);
-            c.setScaleX(defaultScale);
-            c.setScaleY(defaultScale);
+            ViewGroup.LayoutParams lp = c.getLayoutParams();
+            lp.width = defaultSizePx;
+            lp.height = defaultSizePx;
+            c.setLayoutParams(lp);
             c.setX(0f);
             c.setY(0f);
         }
-        for (String key : modScales.keySet()) {
-            modScales.put(key, defaultScale);
+        for (String key : modSizes.keySet()) {
+            modSizes.put(key, defaultSizeDp);
             InbuiltModSizeStore.getInstance().setPositionX(key, -1f);
             InbuiltModSizeStore.getInstance().setPositionY(key, -1f);
         }
         lastSelectedButton = null;
         lastSelectedId = null;
         sliderContainer.setVisibility(View.GONE);
-        sizeSeekBar.setProgress(scaleToProgress(defaultScale));
+        sizeSeekBar.setProgress(sizeToProgress(defaultSizeDp));
     }
 }
