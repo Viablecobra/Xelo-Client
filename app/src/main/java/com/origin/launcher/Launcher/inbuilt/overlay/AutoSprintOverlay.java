@@ -33,8 +33,12 @@ public class AutoSprintOverlay extends BaseOverlayButton {
         int sizePx = dpToPx(btn.getContext(), sizeDp);
 
         ViewGroup.LayoutParams lp = btn.getLayoutParams();
-        lp.width = sizePx;
-        lp.height = sizePx;
+        if (lp == null) {
+            lp = new ViewGroup.LayoutParams(sizePx, sizePx);
+        } else {
+            lp.width = sizePx;
+            lp.height = sizePx;
+        }
         btn.setLayoutParams(lp);
     }
 
@@ -61,7 +65,7 @@ public class AutoSprintOverlay extends BaseOverlayButton {
                 btn.setAlpha(active ? 1.0f : 0.6f);
                 btn.setBackgroundResource(
                         active ? R.drawable.bg_overlay_button_active
-                               : R.drawable.bg_overlay_button
+                                : R.drawable.bg_overlay_button
                 );
             }
         }

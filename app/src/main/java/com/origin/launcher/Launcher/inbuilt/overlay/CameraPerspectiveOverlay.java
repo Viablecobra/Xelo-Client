@@ -31,8 +31,12 @@ public class CameraPerspectiveOverlay extends BaseOverlayButton {
         int sizePx = dpToPx(btn.getContext(), sizeDp);
 
         ViewGroup.LayoutParams lp = btn.getLayoutParams();
-        lp.width = sizePx;
-        lp.height = sizePx;
+        if (lp == null) {
+            lp = new ViewGroup.LayoutParams(sizePx, sizePx);
+        } else {
+            lp.width = sizePx;
+            lp.height = sizePx;
+        }
         btn.setLayoutParams(lp);
     }
 
