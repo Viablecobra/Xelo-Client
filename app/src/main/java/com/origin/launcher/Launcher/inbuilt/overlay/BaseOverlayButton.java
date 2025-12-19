@@ -49,6 +49,11 @@ public abstract class BaseOverlayButton {
         return (int) (sizeDp * density);
     }
 
+    protected float getButtonAlpha() {
+        int opacity = InbuiltModManager.getInstance(activity).getOverlayButtonOpacity(getModId());
+        return opacity / 100f;
+    }
+
     protected abstract String getModId();
 
     public void show(int startX, int startY) {
@@ -67,6 +72,7 @@ public abstract class BaseOverlayButton {
             int padding = (int) (buttonSize * 0.22f);
             btn.setPadding(padding, padding, padding, padding);
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+            btn.setAlpha(getButtonAlpha());
 
             wmParams = new WindowManager.LayoutParams(
                     buttonSize,
@@ -104,6 +110,7 @@ public abstract class BaseOverlayButton {
         int padding = (int) (buttonSize * 0.22f);
         btn.setPadding(padding, padding, padding, padding);
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+        btn.setAlpha(getButtonAlpha());
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 buttonSize,

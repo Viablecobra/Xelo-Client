@@ -10,33 +10,32 @@
         android:src="@drawable/xelo_customize_background"
         android:scaleType="centerCrop" />
 
-    <LinearLayout
-        android:id="@+id/customize_root"
+    <FrameLayout
+        android:id="@+id/inbuilt_buttons_grid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:orientation="vertical"
         android:padding="16dp"
         android:gravity="center_horizontal">
-
-        <FrameLayout
-            android:id="@+id/inbuilt_buttons_grid"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingTop="16dp" />
 
         <LinearLayout
             android:id="@+id/slider_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
             android:gravity="center_vertical"
             android:padding="12dp"
             android:background="@drawable/rounded_card_background"
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/slider_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Size"
@@ -58,7 +57,20 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:padding="12dp">
+            android:paddingTop="12dp">
+
+            <Button
+                android:id="@+id/opacity_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Opacity"
+                android:background="@drawable/rounded_card_background"
+                android:textColor="@android:color/white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_marginEnd="16dp" />
 
             <Button
                 android:id="@+id/reset_button"
@@ -71,6 +83,19 @@
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp" />
+
+            <Button
+                android:id="@+id/size_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Size"
+                android:background="@drawable/rounded_card_background"
+                android:textColor="@android:color/white"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_marginStart="16dp" />
 
             <Button
                 android:id="@+id/done_button"
@@ -87,4 +112,5 @@
         </LinearLayout>
 
     </LinearLayout>
+
 </FrameLayout>

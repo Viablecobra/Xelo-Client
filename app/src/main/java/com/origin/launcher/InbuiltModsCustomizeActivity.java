@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -22,17 +23,25 @@ import java.util.Map;
 
 public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
 
+    private enum SliderMode { SIZE, OPACITY }
+
     private View lastSelectedButton;
     private View sliderContainer;
     private SeekBar sizeSeekBar;
-    private View dragBoundsView;
+    private TextView sliderLabel;
     private final Map<String, Integer> modSizes = new HashMap<>();
+    private final Map<String, Integer> modOpacity = new HashMap<>();
     private final Map<String, View> modButtons = new HashMap<>();
     private String lastSelectedId = null;
+    private SliderMode currentMode = SliderMode.SIZE;
 
     private static final int MIN_SIZE_DP = 32;
     private static final int MAX_SIZE_DP = 96;
     private static final int DEFAULT_SIZE_DP = 40;
+
+    private static final int MIN_OPACITY = 20;
+    private static final int MAX_OPACITY = 100;
+    private static final int DEFAULT_OPACITY = 100;
 
     private int sizeToProgress(int sizeDp) {
         float t = (sizeDp - MIN_SIZE_DP) / (float) (MAX_SIZE_DP - MIN_SIZE_DP);
@@ -48,6 +57,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP));
     }
 
+    private int clampOpacity(int o) {
+        return Math.max(MIN_OPACITY, Math.min(o, MAX_OPACITY));
+    }
+
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
@@ -57,15 +70,18 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbuilt_mods_customize);
 
-        dragBoundsView = findViewById(R.id.customize_root);
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
+        Button sizeButton = findViewById(R.id.size_button);
+        Button opacityButton = findViewById(R.id.opacity_button);
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         sliderContainer = findViewById(R.id.slider_container);
         sizeSeekBar = findViewById(R.id.size_seekbar);
+        sliderLabel = findViewById(R.id.slider_label);
+
         sizeSeekBar.setMax(100);
 
-        View root = findViewById(R.id.customize_root);
+        View root = findViewById(R.id.customize_background);
         root.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 lastSelectedButton = null;
@@ -85,6 +101,11 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             s = clampSize(s <= 0 ? DEFAULT_SIZE_DP : s);
             e.setValue(s);
         }
+        for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+            int o = e.getValue();
+            o = clampOpacity(o <= 0 ? DEFAULT_OPACITY : o);
+            e.setValue(o);
+        }
 
         int initialSize = clampSize(DEFAULT_SIZE_DP);
         sizeSeekBar.setProgress(sizeToProgress(initialSize));
@@ -92,7 +113,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         lastSelectedButton = null;
         lastSelectedId = null;
 
-        resetButton.setOnClickListener(v -> resetSizes(grid));
+        resetButton.setOnClickListener(v -> resetAll(grid));
 
         doneButton.setOnClickListener(v -> {
             Intent result = new Intent();
@@ -111,6 +132,11 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
                     result.putExtra("posy_" + id, y);
                 }
             }
+            for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+                String id = e.getKey();
+                int opacity = e.getValue();
+                result.putExtra("opacity_" + id, opacity);
+            }
             setResult(RESULT_OK, result);
             finish();
         });
@@ -119,15 +145,20 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (lastSelectedButton == null || lastSelectedId == null) return;
-                int sizeDp = clampSize(progressToSize(progress));
-                int sizePx = dpToPx(sizeDp);
 
-                ViewGroup.LayoutParams lp = lastSelectedButton.getLayoutParams();
-                lp.width = sizePx;
-                lp.height = sizePx;
-                lastSelectedButton.setLayoutParams(lp);
-
-                modSizes.put(lastSelectedId, sizeDp);
+                if (currentMode == SliderMode.SIZE) {
+                    int sizeDp = clampSize(progressToSize(progress));
+                    int sizePx = dpToPx(sizeDp);
+                    ViewGroup.LayoutParams lp = lastSelectedButton.getLayoutParams();
+                    lp.width = sizePx;
+                    lp.height = sizePx;
+                    lastSelectedButton.setLayoutParams(lp);
+                    modSizes.put(lastSelectedId, sizeDp);
+                } else {
+                    int opacity = clampOpacity(MIN_OPACITY + progress);
+                    lastSelectedButton.setAlpha(opacity / 100f);
+                    modOpacity.put(lastSelectedId, opacity);
+                }
             }
 
             @Override public void onStartTrackingTouch(SeekBar seekBar) { }
@@ -135,46 +166,27 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
-        sizeSeekBar.post(() -> {
-            int h = sizeSeekBar.getHeight();
-            int padV = h / 4;
-            int padH = h / 3;
-            sizeSeekBar.setPadding(padH, padV, padH, padV);
-
-            ViewGroup.MarginLayoutParams lp =
-                    (ViewGroup.MarginLayoutParams) sizeSeekBar.getLayoutParams();
-            int marginV = h / 4;
-            int marginH = h / 4;
-            lp.setMargins(marginH, marginV, marginH, marginV);
-            sizeSeekBar.setLayoutParams(lp);
+        sizeButton.setOnClickListener(v -> {
+            currentMode = SliderMode.SIZE;
+            sliderLabel.setText("Size");
+            if (lastSelectedId != null) {
+                int sizeDp = modSizes.getOrDefault(lastSelectedId, DEFAULT_SIZE_DP);
+                sizeSeekBar.setMax(100);
+                sizeSeekBar.setProgress(sizeToProgress(sizeDp));
+                sliderContainer.setVisibility(View.VISIBLE);
+            }
         });
 
-        resetButton.post(() -> {
-            int h = resetButton.getHeight();
-            int padV = h / 4;
-            int padH = h / 3;
-            resetButton.setPadding(padH, padV, padH, padV);
-
-            ViewGroup.MarginLayoutParams lp =
-                    (ViewGroup.MarginLayoutParams) resetButton.getLayoutParams();
-            int marginV = h / 4;
-            int marginH = h / 4;
-            lp.setMargins(marginH, marginV, marginH, marginV);
-            resetButton.setLayoutParams(lp);
-        });
-
-        doneButton.post(() -> {
-            int h = doneButton.getHeight();
-            int padV = h / 4;
-            int padH = h / 3;
-            doneButton.setPadding(padH, padV, padH, padV);
-
-            ViewGroup.MarginLayoutParams lp =
-                    (ViewGroup.MarginLayoutParams) doneButton.getLayoutParams();
-            int marginV = h / 4;
-            int marginH = h / 4;
-            lp.setMargins(marginH, marginV, marginH, marginV);
-            doneButton.setLayoutParams(lp);
+        opacityButton.setOnClickListener(v -> {
+            currentMode = SliderMode.OPACITY;
+            sliderLabel.setText("Opacity");
+            if (lastSelectedId != null) {
+                int opacity = modOpacity.getOrDefault(lastSelectedId, DEFAULT_OPACITY);
+                int range = MAX_OPACITY - MIN_OPACITY;
+                sizeSeekBar.setMax(range);
+                sizeSeekBar.setProgress(opacity - MIN_OPACITY);
+                sliderContainer.setVisibility(View.VISIBLE);
+            }
         });
     }
 
@@ -190,17 +202,19 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         savedSizeDp = clampSize(savedSizeDp);
         int sizePx = dpToPx(savedSizeDp);
 
+        int savedOpacity = DEFAULT_OPACITY;
+
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
         lp.leftMargin = dpToPx(8);
         lp.topMargin = dpToPx(8);
         btn.setLayoutParams(lp);
 
         modSizes.put(id, savedSizeDp);
+        modOpacity.put(id, savedOpacity);
+        btn.setAlpha(savedOpacity / 100f);
 
-        float savedX = 0f;
-        float savedY = 0f;
-        btn.setX(savedX);
-        btn.setY(savedY);
+        btn.setX(0f);
+        btn.setY(0f);
 
         modButtons.put(id, btn);
 
@@ -208,17 +222,27 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             lastSelectedButton = v;
             lastSelectedId = id;
 
-            Integer sizeObj = modSizes.get(id);
-            int sizeDp = sizeObj == null || sizeObj <= 0 ? DEFAULT_SIZE_DP : clampSize(sizeObj);
+            int sizeDp = modSizes.getOrDefault(id, DEFAULT_SIZE_DP);
+            sizeDp = clampSize(sizeDp);
             int sizePx2 = dpToPx(sizeDp);
-
             ViewGroup.LayoutParams lp2 = v.getLayoutParams();
             lp2.width = sizePx2;
             lp2.height = sizePx2;
             v.setLayoutParams(lp2);
-
             modSizes.put(id, sizeDp);
-            sizeSeekBar.setProgress(sizeToProgress(sizeDp));
+
+            if (currentMode == SliderMode.SIZE) {
+                sliderLabel.setText("Size");
+                sizeSeekBar.setMax(100);
+                sizeSeekBar.setProgress(sizeToProgress(sizeDp));
+            } else {
+                sliderLabel.setText("Opacity");
+                int opacity = modOpacity.getOrDefault(id, DEFAULT_OPACITY);
+                opacity = clampOpacity(opacity);
+                int range = MAX_OPACITY - MIN_OPACITY;
+                sizeSeekBar.setMax(range);
+                sizeSeekBar.setProgress(opacity - MIN_OPACITY);
+            }
             sliderContainer.setVisibility(View.VISIBLE);
         });
 
@@ -265,9 +289,11 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         grid.addView(btn);
     }
 
-    private void resetSizes(FrameLayout grid) {
+    private void resetAll(FrameLayout grid) {
         int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
         int defaultSizePx = dpToPx(defaultSizeDp);
+        int defaultOpacity = DEFAULT_OPACITY;
+
         for (int i = 0; i < grid.getChildCount(); i++) {
             View c = grid.getChildAt(i);
             ViewGroup.LayoutParams lp = c.getLayoutParams();
@@ -276,13 +302,20 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             c.setLayoutParams(lp);
             c.setX(0f);
             c.setY(0f);
+            c.setAlpha(defaultOpacity / 100f);
         }
         for (String key : modSizes.keySet()) {
             modSizes.put(key, defaultSizeDp);
         }
+        for (String key : modOpacity.keySet()) {
+            modOpacity.put(key, defaultOpacity);
+        }
         lastSelectedButton = null;
         lastSelectedId = null;
         sliderContainer.setVisibility(View.GONE);
+        currentMode = SliderMode.SIZE;
+        sliderLabel.setText("Size");
+        sizeSeekBar.setMax(100);
         sizeSeekBar.setProgress(sizeToProgress(defaultSizeDp));
     }
 }

@@ -19,7 +19,9 @@ public class InbuiltModManager {
     private static final String KEY_AUTOSPRINT_KEY = "autosprint_key";
     private static final String KEY_OVERLAY_BUTTON_SIZE_PREFIX = "overlay_button_size_";
     private static final String KEY_OVERLAY_BUTTON_SIZE_GLOBAL = "overlay_button_size";
+    private static final String KEY_OVERLAY_BUTTON_OPACITY_PREFIX = "overlay_button_opacity_";
     private static final int DEFAULT_OVERLAY_BUTTON_SIZE = 48;
+    private static final int DEFAULT_OVERLAY_BUTTON_OPACITY = 100;
 
     private static volatile InbuiltModManager instance;
     private final SharedPreferences prefs;
@@ -51,11 +53,11 @@ public class InbuiltModManager {
                 addedMods.contains(ModIds.QUICK_DROP)
         ));
         mods.add(new InbuiltMod(
-                ModIds.CAMERA_PERSPECTIVE,
-                context.getString(R.string.inbuilt_mod_camera),
-                context.getString(R.string.inbuilt_mod_camera_desc),
-                false,
-                addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
+            ModIds.CAMERA_PERSPECTIVE,
+            context.getString(R.string.inbuilt_mod_camera),
+            context.getString(R.string.inbuilt_mod_camera_desc),
+            false,
+            addedMods.contains(ModIds.CAMERA_PERSPECTIVE)
         ));
         mods.add(new InbuiltMod(
                 ModIds.TOGGLE_HUD,
@@ -126,13 +128,20 @@ public class InbuiltModManager {
         prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_GLOBAL, sizeDp).apply();
     }
 
-    // Per‑mod overlay size
     public int getOverlayButtonSize(String modId) {
         return prefs.getInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, DEFAULT_OVERLAY_BUTTON_SIZE);
     }
 
     public void setOverlayButtonSize(String modId, int sizeDp) {
         prefs.edit().putInt(KEY_OVERLAY_BUTTON_SIZE_PREFIX + modId, sizeDp).apply();
+    }
+
+    public int getOverlayButtonOpacity(String modId) {
+        return prefs.getInt(KEY_OVERLAY_BUTTON_OPACITY_PREFIX + modId, DEFAULT_OVERLAY_BUTTON_OPACITY);
+    }
+
+    public void setOverlayButtonOpacity(String modId, int opacity) {
+        prefs.edit().putInt(KEY_OVERLAY_BUTTON_OPACITY_PREFIX + modId, opacity).apply();
     }
 
     private void savePrefs() {
