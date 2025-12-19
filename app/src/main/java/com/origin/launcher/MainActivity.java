@@ -83,7 +83,6 @@ private static final int REQ_STORAGE_PERMS = 100;
 
         checkFirstLaunch();
         InbuiltModSizeStore.getInstance().init(getApplicationContext());
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         
         ThemeUtils.applyThemeToBottomNavigation(bottomNavigationView);
