@@ -93,9 +93,22 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 
     List<InbuiltMod> mods = modManager.getAllMods(this);
+    InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
+
     for (InbuiltMod mod : mods) {
-        float scale = data.getFloatExtra("scale_" + mod.getId(), 1.0f);
-        InbuiltModSizeStore.getInstance().setScale(mod.getId(), scale);
-    }
-}
+        String id = mod.getId();
+
+        int opacity = data.getIntExtra("opacity_" + id, -1);
+        if (opacity > 0) {
+            InbuiltModManager.getInstance(this).setOverlayButtonOpacity(id, opacity);
+        }
+
+        float x = data.getFloatExtra("posx_" + id, -1f);
+        float y = data.getFloatExtra("posy_" + id, -1f);
+        if (x >= 0f && y >= 0f) {
+            sizeStore.setPositionX(id, x);
+            sizeStore.setPositionY(id, y);
+         }
+      }
+   }
 }
