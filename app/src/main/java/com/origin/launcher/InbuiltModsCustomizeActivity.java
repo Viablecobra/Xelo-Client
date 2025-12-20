@@ -202,7 +202,9 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         savedSizeDp = clampSize(savedSizeDp);
         int sizePx = dpToPx(savedSizeDp);
 
-        int savedOpacity = DEFAULT_OPACITY;
+        int savedOpacity = InbuiltModManager.getInstance(this).getOverlayButtonOpacity(id);
+if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
+savedOpacity = clampOpacity(savedOpacity);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
         lp.leftMargin = dpToPx(8);
