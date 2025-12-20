@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
 import com.origin.launcher.Launcher.inbuilt.model.ModIds;
 import com.origin.launcher.R;
 
@@ -91,10 +92,24 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
             return false;
         });
 
+        InbuiltModSizeStore.getInstance().init(getApplicationContext());
+
         addModButton(grid, R.drawable.ic_sprint, ModIds.AUTO_SPRINT);
         addModButton(grid, R.drawable.ic_quick_drop, ModIds.QUICK_DROP);
         addModButton(grid, R.drawable.ic_hud, ModIds.TOGGLE_HUD);
         addModButton(grid, R.drawable.ic_camera, ModIds.CAMERA_PERSPECTIVE);
+
+        InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
+        for (Map.Entry<String, View> e : modButtons.entrySet()) {
+            String id = e.getKey();
+            View btn = e.getValue();
+            float sx = sizeStore.getPositionX(id);
+            float sy = sizeStore.getPositionY(id);
+            if (sx >= 0f && sy >= 0f) {
+                btn.setX(sx);
+                btn.setY(sy);
+            }
+        }
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
             int s = e.getValue();
@@ -203,8 +218,8 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity {
         int sizePx = dpToPx(savedSizeDp);
 
         int savedOpacity = InbuiltModManager.getInstance(this).getOverlayButtonOpacity(id);
-if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
-savedOpacity = clampOpacity(savedOpacity);
+        if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
+        savedOpacity = clampOpacity(savedOpacity);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
         lp.leftMargin = dpToPx(8);
@@ -281,7 +296,13 @@ savedOpacity = clampOpacity(savedOpacity);
                         moved = true;
                         return true;
                     case MotionEvent.ACTION_UP:
-                        if (!moved) view.performClick();
+                        if (!moved) {
+                            view.performClick();
+                        } else {
+                            InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+                            store.setPositionX(id, view.getX());
+                            store.setPositionY(id, view.getY());
+                        }
                         return true;
                 }
                 return false;
